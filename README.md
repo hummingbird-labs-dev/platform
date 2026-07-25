@@ -7,8 +7,8 @@ delivery: GitOps configuration, shared platform capabilities, and workload
 deployments. Changes are made through version-controlled configuration so they
 can be reviewed, validated, reconciled, and reverted.
 
-> This repository is being established. The structure and workflows below
-> describe the intended platform rather than components that are already running.
+> This repository is being established. Its configuration is ready to be
+> reconciled after the Flux setup below is completed.
 
 ## Purpose
 
@@ -72,19 +72,18 @@ use a CNI that enforces `NetworkPolicy` resources, such as Cilium or Calico.
 
 2. Create a fine-grained GitHub personal access token authorized for the
    `hummingbird-labs-dev` organization. Restrict it to the `platform`
-   repository and grant **Contents: Read and write** and **Administration:
-   Read and write**; Flux uses the latter to register its repository deploy
-   key. If the organization requires SAML SSO, authorize the token for the
-   organization. Expose it only in the current shell:
+   repository and grant **Contents: Read and write**. If the organization
+   requires SAML SSO, authorize the token for the organization. Store it only
+   in a local, ignored environment file, then load it into the current shell:
 
    ```sh
    source .env
    ```
 
 3. Bootstrap Flux as an organization repository. This installs Flux in the
-   cluster, registers an SSH deploy key with `hummingbird-labs-dev/platform`,
-   and commits its generated controller and sync manifests to
-   `bootstrap/flux-system/`. Do not add Flux's `--personal` flag:
+   cluster, stores the GitHub token in a Flux secret for Git access, and commits
+   its generated controller and sync manifests to `bootstrap/flux-system/`.
+   Do not add Flux's `--personal` flag:
 
    ```sh
    flux bootstrap github \
@@ -112,22 +111,60 @@ use a CNI that enforces `NetworkPolicy` resources, such as Cilium or Calico.
 No application is deployed during setup. Add an API-specific overlay only once
 its immutable container image and runtime configuration are ready.
 
-## Proposed layout
+## Folder guide
 
-```text
-.
-├── bootstrap/       # Initial cluster and GitOps-controller configuration
-├── gitops/          # Reconciliation sources, applications, and tenancy boundaries
-├── platform/        # Shared services operated for all workloads
-├── applications/    # Workload declarations and delivery configuration
-├── overlays/        # Environment- or cluster-specific customizations
-├── packages/        # Reusable Helm charts, Kustomize bases, and common manifests
-└── docs/            # Repository-specific operational and contribution documentation
+| Folder | What it contains | Simple purpose |
+| --- | --- | --- |
+| `.github/workflows/` | GitHub Actions workflows | Checks that Kubernetes configuration can be built before it is merged. |
+| `bootstrap/flux-system/` | Flux bootstrap and generated controller files | The starting point that installs Flux and tells it to watch this repository. |
+| `gitops/` | Flux `Kustomization` resources | Tells Flux which platform and application folders to apply, and in which order. |
+| `platform/namespaces/` | Namespace and network-policy manifests | Creates the `applications` and `databases` areas and blocks unexpected network traffic into them. |
+| `packages/spring-boot-api/` | Reusable Spring Boot Kubernetes manifests | Provides safe default Deployment, Service, health-check, and security settings for APIs. |
+| `applications/` | One folder per deployed application | Holds the configuration that connects a real application image to the reusable Spring Boot package. |
+
+Each folder contains configuration for one clear job. Do not place application
+source code, container builds, credentials, or infrastructure-provisioning code
+in this repository.
+
+## Adding a Spring Boot API
+
+The first API should be a private, stateless workload: it is reachable only
+inside the cluster through a `ClusterIP` service, with no ingress, load
+balancer, or database resources.
+
+The API's own repository builds and publishes the container image. That image
+must listen on port `8080`, run as a non-root user, support a read-only root
+filesystem with `/tmp` available for temporary files, and expose these Spring
+Boot Actuator endpoints:
+
+- `/actuator/health/liveness`
+- `/actuator/health/readiness`
+
+When the image is available, create `applications/<api-name>/kustomization.yaml`
+using `packages/spring-boot-api`:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: applications
+namePrefix: inventory-
+resources:
+  - ../../packages/spring-boot-api
+images:
+  - name: application
+    newName: ghcr.io/hummingbird-labs-dev/inventory-api
+    newTag: "1.0.0"
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/name: inventory-api
 ```
 
-The layout will evolve as implementation begins, but it should preserve clear
-ownership, minimize duplicated manifests, and make environment differences
-explicit.
+Replace `inventory` and the image reference with the real API details. Use an
+immutable image tag or digest, add only non-sensitive configuration, and add
+the application directory to `applications/kustomization.yaml` only when the
+image exists. Add a narrow network policy that allows only the known callers.
+Do not commit credentials; introduce managed secret handling only when needed.
 
 ## Operating principles
 
@@ -159,6 +196,6 @@ explicit.
 
 Keep changes focused, declarative, and reviewable. Refer to the
 [`architecture`](https://github.com/hummingbird-labs-dev/architecture)
-repository for platform-wide decisions, document repository-specific operating
-details in `docs/`, and never commit credentials, private endpoints, or
-sensitive network topology.
+repository for platform-wide decisions, keep repository guidance in this
+README, and never commit credentials, private endpoints, or sensitive network
+topology.
