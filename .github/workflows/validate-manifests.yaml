@@ -17,5 +17,7 @@ jobs:
       - name: Build Kustomize packages
         run: |
           kubectl kustomize gitops
+          kubectl kustomize platform
           kubectl kustomize platform/namespaces
+          kubectl kustomize deployments
           kubectl kustomize packages/spring-boot-api

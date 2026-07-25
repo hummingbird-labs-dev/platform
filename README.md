@@ -117,10 +117,10 @@ its immutable container image and runtime configuration are ready.
 | --- | --- | --- |
 | `.github/workflows/` | GitHub Actions workflows | Checks that Kubernetes configuration can be built before it is merged. |
 | `bootstrap/flux-system/` | Flux bootstrap and generated controller files | The starting point that installs Flux and tells it to watch this repository. |
-| `gitops/` | Flux `Kustomization` resources | Tells Flux which platform and application folders to apply, and in which order. |
-| `platform/namespaces/` | Namespace and network-policy manifests | Creates the `applications` and `databases` areas and blocks unexpected network traffic into them. |
+| `gitops/` | Flux `Kustomization` resources | Tells Flux which platform and deployment folders to apply, and in which order. |
+| `platform/` | Kubernetes configuration objects | Creates namespaces, network policies, and other cluster configuration that workloads use. |
 | `packages/spring-boot-api/` | Reusable Spring Boot Kubernetes manifests | Provides safe default Deployment, Service, health-check, and security settings for APIs. |
-| `applications/` | One folder per deployed application | Holds the configuration that connects a real application image to the reusable Spring Boot package. |
+| `deployments/` | One folder per deployed workload | Holds every deployable object, including APIs, databases, and future workloads. |
 
 Each folder contains configuration for one clear job. Do not place application
 source code, container builds, credentials, or infrastructure-provisioning code
@@ -140,7 +140,7 @@ Boot Actuator endpoints:
 - `/actuator/health/liveness`
 - `/actuator/health/readiness`
 
-When the image is available, create `applications/<api-name>/kustomization.yaml`
+When the image is available, create `deployments/<api-name>/kustomization.yaml`
 using `packages/spring-boot-api`:
 
 ```yaml
@@ -162,9 +162,38 @@ labels:
 
 Replace `inventory` and the image reference with the real API details. Use an
 immutable image tag or digest, add only non-sensitive configuration, and add
-the application directory to `applications/kustomization.yaml` only when the
-image exists. Add a narrow network policy that allows only the known callers.
-Do not commit credentials; introduce managed secret handling only when needed.
+the workload directory to `deployments/kustomization.yaml` only when the image
+exists. Add a narrow network policy that allows only the known callers. Do not
+commit credentials; introduce managed secret handling only when needed.
+
+## Deploying the learning PostgreSQL database
+
+`deployments/postgresql/postgresql.yaml` deploys a single PostgreSQL instance using
+the Bitnami chart. It is intentionally for learning only: its data uses
+temporary storage and is lost whenever its Pod is recreated. It is deployed in
+the `databases` namespace, which blocks all incoming traffic by default.
+
+After Flux has created the `databases` namespace, create the password secret
+locally. Do not commit this secret:
+
+```sh
+kubectl create secret generic postgresql-credentials \
+  --namespace databases \
+  --from-literal=postgres-password="$(openssl rand -base64 32)"
+```
+
+Commit and push the Helm release, then ask Flux to reconcile it:
+
+```sh
+flux reconcile kustomization platform-baselines \
+  --namespace flux-system \
+  --with-source
+flux get helmreleases --all-namespaces
+kubectl get pods --namespace databases
+```
+
+The default-deny policy means applications cannot connect until a separate,
+narrow network policy explicitly allows the required caller and PostgreSQL port.
 
 ## Operating principles
 
