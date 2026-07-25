@@ -1,0 +1,21 @@
+name: Validate manifests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  kustomize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Kustomize packages
+        run: |
+          kubectl kustomize gitops
+          kubectl kustomize platform/namespaces
+          kubectl kustomize packages/spring-boot-api
