@@ -168,13 +168,14 @@ commit credentials; introduce managed secret handling only when needed.
 
 ## Deploying the learning PostgreSQL database
 
-`deployments/postgresql/postgresql.yaml` deploys a single PostgreSQL instance using
-the Bitnami chart. It is intentionally for learning only: its data uses
-temporary storage and is lost whenever its Pod is recreated. It is deployed in
-the `databases` namespace, which blocks all incoming traffic by default.
+`deployments/postgresql/postgresql.yaml` deploys a single PostgreSQL
+`Deployment` and private `ClusterIP` `Service` in the `databases` namespace.
+It is intentionally for learning only: its data uses temporary storage and is
+lost whenever its Pod is recreated. The namespace blocks all incoming traffic
+by default.
 
 After Flux has created the `databases` namespace, create the password secret
-locally. Do not commit this secret:
+locally. Do not commit this secret; it must contain a `postgres-password` key:
 
 ```sh
 kubectl create secret generic postgresql-credentials \
@@ -182,14 +183,13 @@ kubectl create secret generic postgresql-credentials \
   --from-literal=postgres-password="$(openssl rand -base64 32)"
 ```
 
-Commit and push the Helm release, then ask Flux to reconcile it:
+Commit and push the deployment configuration. Flux will apply it
+automatically; use the following commands to observe the rollout:
 
 ```sh
-flux reconcile kustomization platform-baselines \
-  --namespace flux-system \
-  --with-source
-flux get helmreleases --all-namespaces
+kubectl rollout status deployment/postgresql --namespace databases
 kubectl get pods --namespace databases
+kubectl get service postgresql --namespace databases
 ```
 
 The default-deny policy means applications cannot connect until a separate,
