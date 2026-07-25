@@ -33,6 +33,8 @@ spec:
             - name: postgresql
               containerPort: 5432
           env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -76,18 +78,13 @@ spec:
             capabilities:
               drop:
                 - ALL
-            readOnlyRootFilesystem: true
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
-            - name: runtime
-              mountPath: /var/run/postgresql
             - name: tmp
               mountPath: /tmp
       volumes:
         - name: data
-          emptyDir: {}
-        - name: runtime
           emptyDir: {}
         - name: tmp
           emptyDir: {}
