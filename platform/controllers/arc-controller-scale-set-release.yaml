@@ -23,7 +23,6 @@ spec:
     crds: CreateReplace
   values:
     runnerScaleSetName: "arc-runner-set"
-    githubConfigUrl: "https://github.com/hummingbird-labs-dev" # Update with your org
+    githubConfigUrl: "https://github.com/hummingbird-labs-dev"
     githubConfigSecret:
-      name: arc-github-token
-      key: github_token
+      github_token: "arc-github-token"
