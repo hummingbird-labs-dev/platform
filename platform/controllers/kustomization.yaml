@@ -6,3 +6,4 @@ resources:
   - arc-system-repository.yaml
   - arc-system-release.yaml
   - arc-runners-scale-set-release.yaml
+  - ingress-nginx
