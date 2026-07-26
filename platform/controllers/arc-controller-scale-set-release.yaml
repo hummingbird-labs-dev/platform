@@ -22,5 +22,7 @@ spec:
   values:
     githubConfigUrl: "https://github.com"
     githubConfigSecret:
-      # References the Kubernetes secret created in Step 1
+      # 1. References the Kubernetes secret name
       name: arc-github-token
+      # 2. Instructs the chart template validation engine which key to look for inside that secret
+      github_token: ""
