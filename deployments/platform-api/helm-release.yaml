@@ -22,6 +22,7 @@ spec:
       tag: 0.0.1-SNAPSHOT
     ingress:
       enabled: true
+      className: nginx
       hosts:
         - host: platform-api.k8s.lan.hummingbirdlabs.dev
           paths:
