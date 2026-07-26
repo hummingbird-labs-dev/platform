@@ -2,7 +2,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: actions-runner-controller-charts
-  namespace: flux-system
+  namespace: arc-controller
 spec:
   interval: 2h
   # ARC charts are hosted in GitHub Packages OCI registry
