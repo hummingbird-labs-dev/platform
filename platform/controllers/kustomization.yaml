@@ -1,0 +1,6 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - arc-controller-repository.yaml
+  - arc-controller-release.yaml
+  - arc-controller-scale-set-release.yaml

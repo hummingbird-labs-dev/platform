@@ -1,0 +1,26 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: arc-runner-set
+  namespace: flux-system
+spec:
+  interval: 1h
+  # Ensures the controller runs first
+  dependsOn:
+    - name: arc-controller
+  chart:
+    spec:
+      chart: gha-runner-scale-set
+      version: "0.9.3" # Match the controller version
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner-controller-charts
+        namespace: flux-system
+  install:
+    createNamespace: true
+  targetNamespace: arc-runners
+  values:
+    githubConfigUrl: "https://github.com"
+    githubConfigSecret:
+      # References the Kubernetes secret created in Step 1
+      name: arc-github-token
