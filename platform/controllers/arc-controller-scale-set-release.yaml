@@ -15,7 +15,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller-charts
-        namespace: arc-controller
+        namespace: flux-system
   install:
     createNamespace: true
   targetNamespace: arc-runners
