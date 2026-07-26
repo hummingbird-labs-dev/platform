@@ -119,7 +119,7 @@ its immutable container image and runtime configuration are ready.
 | `bootstrap/flux-system/` | Flux bootstrap and generated controller files | The starting point that installs Flux and tells it to watch this repository. |
 | `gitops/` | Flux `Kustomization` resources | Tells Flux which platform and deployment folders to apply, and in which order. |
 | `platform/` | Kubernetes configuration objects | Creates namespaces, network policies, and other cluster configuration that workloads use. |
-| `packages/spring-boot-api/` | Reusable Spring Boot Kubernetes manifests | Provides safe default Deployment, Service, health-check, and security settings for APIs. |
+| `packages/spring-boot-api/` | Reusable Spring Boot Helm chart | Provides safe default Deployment, Service, health-check, and security settings for APIs. |
 | `deployments/` | One folder per deployed workload | Holds every deployable object, including APIs, databases, and future workloads. |
 
 Each folder contains configuration for one clear job. Do not place application
@@ -140,31 +140,40 @@ Boot Actuator endpoints:
 - `/actuator/health/liveness`
 - `/actuator/health/readiness`
 
-When the image is available, create `deployments/<api-name>/kustomization.yaml`
-using `packages/spring-boot-api`:
+When the image is available, create a `HelmRelease` in
+`deployments/<api-name>/` that uses `packages/spring-boot-api`:
 
 ```yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: applications
-namePrefix: inventory-
-resources:
-  - ../../packages/spring-boot-api
-images:
-  - name: application
-    newName: ghcr.io/hummingbird-labs-dev/inventory-api
-    newTag: "1.0.0"
-labels:
-  - includeSelectors: true
-    pairs:
-      app.kubernetes.io/name: inventory-api
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: inventory-api
+  namespace: flux-system
+spec:
+  interval: 10m
+  releaseName: inventory-api
+  targetNamespace: applications
+  chart:
+    spec:
+      chart: ./packages/spring-boot-api
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    nameOverride: inventory-api
+    image:
+      repository: ghcr.io/hummingbird-labs-dev/inventory-api
+      tag: "1.0.0"
 ```
 
-Replace `inventory` and the image reference with the real API details. Use an
-immutable image tag or digest, add only non-sensitive configuration, and add
-the workload directory to `deployments/kustomization.yaml` only when the image
-exists. Add a narrow network policy that allows only the known callers. Do not
-commit credentials; introduce managed secret handling only when needed.
+Add the `HelmRelease` and a narrow network policy to the workload's
+`kustomization.yaml`. Replace the name and image reference with the real API
+details. Use an immutable image tag or digest, add only non-sensitive
+configuration, and add the workload directory to
+`deployments/kustomization.yaml` only when the image exists. Do not commit
+credentials; introduce managed secret handling only when needed.
 
 ## Deploying the learning PostgreSQL database
 

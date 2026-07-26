@@ -14,10 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build Kustomize packages
+      - name: Build Kustomize configuration
         run: |
           kubectl kustomize gitops
           kubectl kustomize platform
           kubectl kustomize platform/namespaces
           kubectl kustomize deployments
-          kubectl kustomize packages/spring-boot-api
+      - name: Lint and render Spring Boot API chart
+        run: |
+          helm lint packages/spring-boot-api
+          helm template spring-boot-api packages/spring-boot-api > /dev/null
