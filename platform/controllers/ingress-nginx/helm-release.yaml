@@ -26,3 +26,8 @@ spec:
       dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/hostname: k8s-master
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Equal
+          value: ""
+          effect: NoSchedule
