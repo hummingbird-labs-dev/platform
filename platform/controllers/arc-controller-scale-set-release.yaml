@@ -24,8 +24,7 @@ spec:
   values:
     runnerScaleSetName: "arc-runner-set"
     githubConfigUrl: "https://github.com/hummingbird-labs-dev"
-    githubConfigSecret:
-      github_token: "arc-github-token"
+    githubConfigSecret: arc-github-token
     minRunners: 1
     maxRunners: 10
     containerMode:
