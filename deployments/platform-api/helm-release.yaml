@@ -18,5 +18,12 @@ spec:
   values:
     nameOverride: platform-api
     image:
-      repository: ghcr.io/hummingbird-labs-dev/platform-api
-      tag: v0.1.0
+      repository: registry.lan.hummingbirdlabs.dev/hummingbird-labs-dev/platform-api
+      tag: latest
+    ingress:
+      enabled: true
+      hosts:
+        - host: platform-api.k8s.lan.hummingbirdlabs.dev
+          paths:
+            - path: /
+              pathType: Prefix
