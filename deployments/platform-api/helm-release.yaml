@@ -19,7 +19,7 @@ spec:
     nameOverride: platform-api
     image:
       repository: registry.lan.hummingbirdlabs.dev/hummingbird-labs-dev/platform-api
-      tag: latest
+      tag: 0.0.1-SNAPSHOT
     ingress:
       enabled: true
       hosts:
