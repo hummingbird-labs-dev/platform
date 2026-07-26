@@ -24,7 +24,7 @@ spec:
       enabled: true
       className: nginx
       hosts:
-        - host: platform-api.k8s.lan.hummingbirdlabs.dev
+        - host: platform-api.lan.hummingbirdlabs.dev
           paths:
             - path: /
               pathType: Prefix
