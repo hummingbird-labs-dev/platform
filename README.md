@@ -113,14 +113,14 @@ its immutable container image and runtime configuration are ready.
 
 ## Folder guide
 
-| Folder | What it contains | Simple purpose |
-| --- | --- | --- |
-| `.github/workflows/` | GitHub Actions workflows | Checks that Kubernetes configuration can be built before it is merged. |
-| `bootstrap/flux-system/` | Flux bootstrap and generated controller files | The starting point that installs Flux and tells it to watch this repository. |
-| `gitops/` | Flux `Kustomization` resources | Tells Flux which platform and deployment folders to apply, and in which order. |
-| `platform/` | Kubernetes configuration objects | Creates namespaces, network policies, and other cluster configuration that workloads use. |
-| `packages/spring-boot-api/` | Reusable Spring Boot Helm chart | Provides safe default Deployment, Service, health-check, and security settings for APIs. |
-| `deployments/` | One folder per deployed workload | Holds every deployable object, including APIs, databases, and future workloads. |
+| Folder                      | What it contains                              | Simple purpose                                                                            |
+| --------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `.github/workflows/`        | GitHub Actions workflows                      | Checks that Kubernetes configuration can be built before it is merged.                    |
+| `bootstrap/flux-system/`    | Flux bootstrap and generated controller files | The starting point that installs Flux and tells it to watch this repository.              |
+| `gitops/`                   | Flux `Kustomization` resources                | Tells Flux which platform and deployment folders to apply, and in which order.            |
+| `platform/`                 | Kubernetes configuration objects              | Creates namespaces, network policies, and other cluster configuration that workloads use. |
+| `packages/spring-boot-api/` | Reusable Spring Boot Helm chart               | Provides safe default Deployment, Service, health-check, and security settings for APIs.  |
+| `deployments/`              | One folder per deployed workload              | Holds every deployable object, including APIs, databases, and future workloads.           |
 
 Each folder contains configuration for one clear job. Do not place application
 source code, container builds, credentials, or infrastructure-provisioning code
@@ -144,7 +144,7 @@ When the image is available, create a `HelmRelease` in
 `deployments/<api-name>/` that uses `packages/spring-boot-api`:
 
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRelease
 metadata:
   name: inventory-api
