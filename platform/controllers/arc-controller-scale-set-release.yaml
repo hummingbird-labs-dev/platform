@@ -26,3 +26,7 @@ spec:
     githubConfigUrl: "https://github.com/hummingbird-labs-dev"
     githubConfigSecret:
       github_token: "arc-github-token"
+    minRunners: 1
+    maxRunners: 10
+    containerMode:
+      type: dind
