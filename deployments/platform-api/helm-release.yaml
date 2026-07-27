@@ -18,8 +18,8 @@ spec:
   values:
     nameOverride: platform-api
     image:
-      repository: registry.lan.hummingbirdlabs.dev/hummingbird-labs-dev/platform-api
-      tag: 1.0.7
+      repository: registry.lan.hummingbirdlabs.dev/platform-api
+      tag: 1.0.8
     ingress:
       enabled: true
       className: nginx
