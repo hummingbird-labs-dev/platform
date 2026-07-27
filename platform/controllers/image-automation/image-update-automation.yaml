@@ -17,7 +17,7 @@ spec:
       author:
         name: flux
         email: flux@hummingbirdlabs.dev
-      messageTemplate: 'chore(images): update images\n\n{{range .Changed.Images}}{{println .}}{{end}}'
+      messageTemplate: 'chore(images): auto update images'
     push:
       branch: main
   update:
