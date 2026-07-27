@@ -129,26 +129,26 @@ The platform uses two complementary components to route external traffic to Kube
 
 **🔌 MetalLB** — Virtual IP Manager
 - Watches for `LoadBalancer` services
-- Assigns real IPs from the configured pool (`10.10.1.120/32`)
-- Makes the IP available on your network
+- Assigns real IPs from a configured pool
+- Makes IPs available on your network
 
 **🔀 nginx-ingress Controller** — Smart Router
 - Reads `Ingress` routing rules
-- Configures nginx at the MetalLB IP address
+- Configures nginx at the MetalLB-assigned IP
 - Routes traffic by hostname and path
-- Example: `platform-api.lan.hummingbirdlabs.dev` → service port 8080
+- Example: `api.example.com` → service port 8080
 
 ### Architecture Diagram
 
 ```
                    🌍 External Request
                           ↓
-                   🔴 Caddy Reverse Proxy
-                 (10.10.1.120:80, :443)
+                   🔴 Reverse Proxy
+               (Caddy or similar)
                           ↓
          ┌────────────────────────────────┐
          │   MetalLB IP Manager            │
-         │   (Assigns 10.10.1.120)         │
+         │   (Assigns LoadBalancer IP)     │
          └────────────────────────────────┘
                           ↓
          ┌────────────────────────────────┐
@@ -223,34 +223,6 @@ spec:
 
 Then add to `deployments/kustomization.yaml` with a narrow network policy.
 
-## 🗄️ PostgreSQL Database
-
-`deployments/postgresql/postgresql.yaml` deploys a single PostgreSQL
-`Deployment` and private `ClusterIP` `Service` in the `databases` namespace.
-It is intentionally for learning only: its data uses temporary storage and is
-lost whenever its Pod is recreated. The namespace blocks all incoming traffic
-by default.
-
-After Flux has created the `databases` namespace, create the password secret
-locally. Do not commit this secret; it must contain a `postgres-password` key:
-
-```sh
-kubectl create secret generic postgresql-credentials \
-  --namespace databases \
-  --from-literal=postgres-password="$(openssl rand -base64 32)"
-```
-
-Commit and push the deployment configuration. Flux will apply it
-automatically; use the following commands to observe the rollout:
-
-```sh
-kubectl rollout status deployment/postgresql --namespace databases
-kubectl get pods --namespace databases
-kubectl get service postgresql --namespace databases
-```
-
-The default-deny policy means applications cannot connect until a separate,
-narrow network policy explicitly allows the required caller and PostgreSQL port.
 
 ## 📋 Operating Principles
 
