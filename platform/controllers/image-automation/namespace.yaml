@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: image-automation
+  labels:
+    app.kubernetes.io/name: image-automation
+    app.kubernetes.io/part-of: platform

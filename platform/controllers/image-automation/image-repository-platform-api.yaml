@@ -1,0 +1,8 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: platform-api
+  namespace: image-automation
+spec:
+  image: registry.lan.hummingbirdlabs.dev/platform-api
+  interval: 5m0s

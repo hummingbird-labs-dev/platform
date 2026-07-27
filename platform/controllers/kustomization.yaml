@@ -4,3 +4,4 @@ resources:
   - arc
   - metallb
   - ingress-nginx
+  - image-automation

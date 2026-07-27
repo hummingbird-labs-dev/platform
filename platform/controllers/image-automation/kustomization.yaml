@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: image-automation
+resources:
+  - namespace.yaml
+  - image-repository-platform-api.yaml
+  - image-policy-platform-api.yaml
+  - image-update-automation.yaml
