@@ -1,218 +1,210 @@
-# Platform
+# 🚀 Platform
 
-The declarative source of truth for the Hummingbird Labs Kubernetes platform.
+> The declarative source of truth for the Hummingbird Labs Kubernetes platform.
 
-This repository will define the desired state for cluster services and application
-delivery: GitOps configuration, shared platform capabilities, and workload
-deployments. Changes are made through version-controlled configuration so they
-can be reviewed, validated, reconciled, and reverted.
+This repository defines the desired state for cluster services and application delivery: GitOps configuration, shared platform capabilities, and workload deployments. All changes are version-controlled so they can be reviewed, validated, reconciled, and reverted.
 
-> This repository is being established. Its configuration is ready to be
-> reconciled after the Flux setup below is completed.
+> ⚠️ **Status**: This repository is being established. Configuration is ready to reconcile after [Flux setup](#setup) is completed.
 
-## Purpose
+## 🎯 Purpose
 
-The platform provides a repeatable path for delivering services to Kubernetes
-without requiring each workload to solve cluster integration, configuration, and
-delivery independently.
+The platform provides a repeatable path for delivering services to Kubernetes without requiring each workload to solve cluster integration, configuration, and delivery independently.
 
-It will contain:
+**Includes:**
+- ✅ Cluster bootstrap configuration for GitOps reconciliation
+- ✅ GitOps application definitions and reconciliation boundaries
+- ✅ Shared platform services (ingress, certificates, identity, secrets)
+- ✅ Reusable deployment building blocks (Helm charts, Kustomize bases, policies)
+- ✅ Application workload declarations and delivery configuration
 
-- Cluster bootstrap configuration needed to establish GitOps reconciliation.
-- GitOps application definitions and reconciliation boundaries.
-- Shared platform services, such as ingress integration, certificate management,
-  identity integration, and secrets delivery.
-- Reusable deployment building blocks, including Helm charts, Kustomize bases,
-  policies, and environment overlays.
-- Application workload declarations and their delivery configuration.
+## 🗂️ Repository Boundaries
 
-## Repository boundaries
+`platform` owns Kubernetes-level desired state and application delivery. It does not provision underlying infrastructure or duplicate architecture documentation.
 
-`platform` owns Kubernetes-level desired state and application delivery. It
-does not provision the underlying infrastructure or duplicate platform-wide
-architecture documentation.
+| Repository | Responsibility |
+| --- | --- |
+| 🏗️ [`architecture`](https://github.com/hummingbird-labs-dev/architecture) | System design, decisions, service catalog, operational model |
+| 🔧 [`infrastructure`](https://github.com/hummingbird-labs-dev/infrastructure) | Compute, networking, DNS, and shared infrastructure |
+| ⚙️ [`configuration`](https://github.com/hummingbird-labs-dev/configuration) | OS configuration, machine automation, Caddy setup |
+| ☸️ [`platform`](https://github.com/hummingbird-labs-dev/platform) | **← YOU ARE HERE** — Kubernetes state, GitOps, services, workloads |
+| 🌐 [`edge`](https://github.com/hummingbird-labs-dev/edge) | Caddy, TLS, DNS, reverse-proxy routing |
+| 📊 [`observability`](https://github.com/hummingbird-labs-dev/observability) | Telemetry, dashboards, alerts, runbooks |
 
-| Repository                                                                 | Responsibility                                                                           |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [`architecture`](https://github.com/hummingbird-labs-dev/architecture)     | Canonical system design, architecture decisions, service catalog, and operational model. |
-| [`infrastructure`](https://github.com/hummingbird-labs-dev/infrastructure) | Foundational compute, networking, DNS, and shared infrastructure provisioning.           |
-| [`configuration`](https://github.com/hummingbird-labs-dev/configuration)   | Host operating-system configuration and reusable machine automation.                     |
-| [`platform`](https://github.com/hummingbird-labs-dev/platform)             | Kubernetes desired state, GitOps, shared services, and workload delivery.                |
-| [`edge`](https://github.com/hummingbird-labs-dev/edge)                     | Internet-facing Caddy, TLS, DNS integration, and reverse-proxy routing.                  |
-| [`observability`](https://github.com/hummingbird-labs-dev/observability)   | Telemetry stack operations, dashboards, alerts, recording rules, and runbooks.           |
+## 📐 Delivery Model
 
-Implementation details in this repository should link to the relevant
-`architecture` documentation rather than recreate cross-platform designs.
-
-## Delivery model
-
-The target delivery model is GitOps:
-
-```text
-Pull request -> validation -> merged desired state -> GitOps reconciliation -> Kubernetes
-```
-
-GitOps controllers will reconcile the version-controlled desired state to the
-cluster. Direct, untracked changes to managed resources should be avoided so
-that the repository remains the authoritative record of intended platform
-state.
-
-## Setup
-
-The initial setup installs Flux CD in a Kubernetes cluster and configures it to
-reconcile this repository. The cluster must be reachable through `kubectl` and
-use a CNI that enforces `NetworkPolicy` resources, such as Cilium or Calico.
-
-1. Install the Flux CLI and confirm the cluster meets its prerequisites:
-
-   ```sh
-   brew install fluxcd/tap/flux
-   flux check --pre
-   ```
-
-2. Create a fine-grained GitHub personal access token authorized for the
-   `hummingbird-labs-dev` organization. Restrict it to the `platform`
-   repository and grant **Contents: Read and write**. If the organization
-   requires SAML SSO, authorize the token for the organization. Store it only
-   in a local, ignored environment file, then load it into the current shell:
-
-   ```sh
-   source .env
-   ```
-
-3. Bootstrap Flux as an organization repository. This installs Flux in the
-   cluster, stores the GitHub token in a Flux secret for Git access, and commits
-   its generated controller and sync manifests to `bootstrap/flux-system/`.
-   Do not add Flux's `--personal` flag:
-
-   ```sh
-   flux bootstrap github \
-      --token-auth \
-      --owner=hummingbird-labs-dev \
-      --repository=platform \
-      --branch=main \
-      --path=bootstrap/flux-system
-   ```
-
-4. In the generated `bootstrap/flux-system/kustomization.yaml`, add
-   `platform-kustomization.yaml` to `resources`, commit, and push the change.
-   Flux will then reconcile `gitops/`, including the application namespace and
-   its default-deny ingress policy.
-
-5. Confirm that the source and Kustomizations reconcile:
-
-   ```sh
-   flux get sources git -A
-   flux get kustomizations -A
-   kubectl get namespace applications
-   kubectl get networkpolicy -n applications
-   ```
-
-No application is deployed during setup. Add an API-specific overlay only once
-its immutable container image and runtime configuration are ready.
-
-## Folder guide
-
-| Folder                      | What it contains                              | Simple purpose                                                                            |
-| --------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `.github/workflows/`        | GitHub Actions workflows                      | Checks that Kubernetes configuration can be built before it is merged.                    |
-| `bootstrap/flux-system/`    | Flux bootstrap and generated controller files | The starting point that installs Flux and tells it to watch this repository.              |
-| `gitops/`                   | Flux `Kustomization` resources                | Tells Flux which platform and deployment folders to apply, and in which order.            |
-| `platform/`                 | Kubernetes configuration objects              | Creates namespaces, network policies, and other cluster configuration that workloads use. |
-| `packages/spring-boot-api/` | Reusable Spring Boot Helm chart               | Provides safe default Deployment, Service, health-check, and security settings for APIs.  |
-| `deployments/`              | One folder per deployed workload              | Holds every deployable object, including APIs, databases, and future workloads.           |
-
-Each folder contains configuration for one clear job. Do not place application
-source code, container builds, credentials, or infrastructure-provisioning code
-in this repository.
-
-## Networking and Ingress
-
-### MetalLB and nginx-ingress Controller
-
-The platform uses two complementary components to route external traffic to
-Kubernetes services:
-
-**MetalLB** is a virtual IP manager for Kubernetes. It watches for services
-marked as `type: LoadBalancer` and assigns them real IP addresses from a
-configured pool. In this platform, MetalLB manages the IP pool `10.10.1.120/32`,
-making that address available on the cluster's network.
-
-**nginx-ingress Controller** reads `Ingress` resources and configures nginx
-routing rules. It receives traffic at the MetalLB-assigned IP address and routes
-it to services based on hostnames and paths. For example, an Ingress rule for
-`platform-api.lan.hummingbirdlabs.dev` will route matching requests to the
-`platform-api` service.
-
-**How they work together:**
+**GitOps workflow:**
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│ External Traffic (e.g., Caddy reverse proxy)             │
-│ Requests to: platform-api.lan.hummingbirdlabs.dev        │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-                      ▼
-        ┌─────────────────────────┐
-        │ MetalLB                 │
-        │ (Assigns IP: 10.10.1.120│
-        │  to nginx service)      │
-        └────────────┬────────────┘
-                     │
-                     ▼
-        ┌────────────────────────────┐
-        │ nginx-ingress Controller    │
-        │ (Reads Ingress rules)      │
-        │ platform-api → service:8080│
-        └────────────┬───────────────┘
-                     │
-                     ▼
-        ┌────────────────────────┐
-        │ platform-api Service   │
-        │ (ClusterIP: port 8080) │
-        └────────────┬───────────┘
-                     │
-                     ▼
-        ┌────────────────────────┐
-        │ platform-api Pods      │
-        │ (Your application)     │
-        └────────────────────────┘
+Pull Request → Validation → Merged State → Flux Reconciliation → Kubernetes
 ```
 
-**Key files:**
+Version-controlled desired state is reconciled to the cluster by Flux controllers. Direct, untracked changes should be avoided so the repository remains the authoritative record.
 
-- `platform/controllers/metallb/` — MetalLB Helm chart and IP pool configuration
-- `platform/controllers/ingress-nginx/` — nginx-ingress Helm chart and service configuration
+## ⚡ Quick Start
 
-No direct application changes are needed; define an `Ingress` resource in your
-deployment, and these controllers will automatically configure routing.
+### Prerequisites
 
-## Adding a Spring Boot API
+- ✅ `kubectl` configured to reach your cluster
+- ✅ Kubernetes cluster with `NetworkPolicy` support (Cilium, Calico, etc.)
+- ✅ GitHub personal access token for the organization
 
-The first API should be a private, stateless workload: it is reachable only
-inside the cluster through a `ClusterIP` service, with no ingress, load
-balancer, or database resources.
+### Installation
 
-The API's own repository builds and publishes the container image. That image
-must listen on port `8080`, run as a non-root user, support a read-only root
-filesystem with `/tmp` available for temporary files, and expose these Spring
-Boot Actuator endpoints:
+**1️⃣ Install Flux CLI and verify cluster:**
 
-- `/actuator/health/liveness`
-- `/actuator/health/readiness`
+```sh
+brew install fluxcd/tap/flux
+flux check --pre
+```
 
-When the image is available, create a `HelmRelease` in
-`deployments/<api-name>/` that uses `packages/spring-boot-api`:
+**2️⃣ Create fine-grained GitHub token:**
+
+- Organization: `hummingbird-labs-dev`
+- Repository: `platform` only
+- Permissions: **Contents: Read and write**
+- Store in `.env` (ignored by Git)
+
+```sh
+source .env
+```
+
+**3️⃣ Bootstrap Flux:**
+
+```sh
+flux bootstrap github \
+   --token-auth \
+   --owner=hummingbird-labs-dev \
+   --repository=platform \
+   --branch=main \
+   --path=bootstrap/flux-system
+```
+
+**4️⃣ Enable platform reconciliation:**
+
+Add `platform-kustomization.yaml` to `bootstrap/flux-system/kustomization.yaml` resources, then commit and push.
+
+**5️⃣ Verify:**
+
+```sh
+flux get sources git -A
+flux get kustomizations -A
+kubectl get namespace applications
+kubectl get networkpolicy -n applications
+```
+
+## 📁 Folder Structure
+
+```
+platform/
+├── 🔧 bootstrap/flux-system/          Flux bootstrap & controllers
+├── 📦 platform/                       Kubernetes configuration
+│   ├── controllers/                   Shared cluster controllers
+│   │   ├── arc/                       GitHub Actions Runner Controller
+│   │   ├── metallb/                   LoadBalancer IP management
+│   │   └── ingress-nginx/             Ingress routing
+│   └── namespaces/                    Namespace & security policies
+├── 📋 gitops/                         Flux Kustomization orchestration
+├── 🚀 deployments/                    Application workloads
+│   ├── platform-api/
+│   ├── postgresql/
+│   └── ...
+├── 📦 packages/spring-boot-api/       Reusable Helm chart
+└── 🔍 .github/workflows/              CI/CD validation
+```
+
+| Folder | Purpose |
+| --- | --- |
+| `bootstrap/` | 🚀 Flux installation & sync configuration |
+| `platform/` | ☸️ Cluster controllers, namespaces, policies |
+| `gitops/` | 📋 Orchestration & reconciliation order |
+| `deployments/` | 📦 Workloads (APIs, databases, etc.) |
+| `packages/` | 📚 Reusable charts & templates |
+| `.github/workflows/` | 🔍 Validation & GitOps checks |
+
+## 🌐 Networking & Ingress
+
+### MetalLB & nginx-ingress Controller
+
+The platform uses two complementary components to route external traffic to Kubernetes services:
+
+**🔌 MetalLB** — Virtual IP Manager
+- Watches for `LoadBalancer` services
+- Assigns real IPs from the configured pool (`10.10.1.120/32`)
+- Makes the IP available on your network
+
+**🔀 nginx-ingress Controller** — Smart Router
+- Reads `Ingress` routing rules
+- Configures nginx at the MetalLB IP address
+- Routes traffic by hostname and path
+- Example: `platform-api.lan.hummingbirdlabs.dev` → service port 8080
+
+### Architecture Diagram
+
+```
+                   🌍 External Request
+                          ↓
+                   🔴 Caddy Reverse Proxy
+                 (10.10.1.120:80, :443)
+                          ↓
+         ┌────────────────────────────────┐
+         │   MetalLB IP Manager            │
+         │   (Assigns 10.10.1.120)         │
+         └────────────────────────────────┘
+                          ↓
+         ┌────────────────────────────────┐
+         │   nginx-ingress Controller      │
+         │   • Reads Ingress rules         │
+         │   • Routes by hostname/path     │
+         │   • Terminates TLS             │
+         └────────────────────────────────┘
+                          ↓
+         ┌────────────────────────────────┐
+         │   Application Services         │
+         │   (ClusterIP, port 8080, etc)  │
+         └────────────────────────────────┘
+                          ↓
+         ┌────────────────────────────────┐
+         │   Your Kubernetes Workloads    │
+         │   (Pods, Deployments, etc)     │
+         └────────────────────────────────┘
+```
+
+**Configuration Files:**
+- 📍 `platform/controllers/metallb/` — MetalLB Helm chart & IP pools
+- 🔀 `platform/controllers/ingress-nginx/` — nginx-ingress configuration
+
+No additional configuration needed—just define an `Ingress` resource in your deployment!
+
+## 🚀 Adding a Spring Boot API
+
+The first API should be a **private, stateless workload**:
+- ✅ Reachable only inside the cluster
+- ✅ No ingress, load balancer, or database
+- ✅ Health checks configured
+
+### API Requirements
+
+Your container image must:
+- 🔧 Listen on port **8080**
+- 👤 Run as a **non-root user**
+- 📁 Support a **read-only root filesystem** with `/tmp` available
+- 💚 Expose Spring Boot Actuator endpoints:
+  - `/actuator/health/liveness`
+  - `/actuator/health/readiness`
+
+### Deployment
+
+Create a `HelmRelease` in `deployments/<api-name>/`:
 
 ```yaml
-apiVersion: source.toolkit.fluxcd.io/v1
+apiVersion: helm.toolkit.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: inventory-api
+  name: platform-api
   namespace: flux-system
 spec:
   interval: 10m
-  releaseName: inventory-api
+  releaseName: platform-api
   targetNamespace: applications
   chart:
     spec:
@@ -223,20 +215,15 @@ spec:
         name: flux-system
         namespace: flux-system
   values:
-    nameOverride: inventory-api
+    nameOverride: platform-api
     image:
-      repository: ghcr.io/hummingbird-labs-dev/inventory-api
+      repository: ghcr.io/hummingbird-labs-dev/platform-api
       tag: "1.0.0"
 ```
 
-Add the `HelmRelease` and a narrow network policy to the workload's
-`kustomization.yaml`. Replace the name and image reference with the real API
-details. Use an immutable image tag or digest, add only non-sensitive
-configuration, and add the workload directory to
-`deployments/kustomization.yaml` only when the image exists. Do not commit
-credentials; introduce managed secret handling only when needed.
+Then add to `deployments/kustomization.yaml` with a narrow network policy.
 
-## Deploying the learning PostgreSQL database
+## 🗄️ PostgreSQL Database
 
 `deployments/postgresql/postgresql.yaml` deploys a single PostgreSQL
 `Deployment` and private `ClusterIP` `Service` in the `databases` namespace.
@@ -265,36 +252,28 @@ kubectl get service postgresql --namespace databases
 The default-deny policy means applications cannot connect until a separate,
 narrow network policy explicitly allows the required caller and PostgreSQL port.
 
-## Operating principles
+## 📋 Operating Principles
 
-- **Desired state is reviewed state.** Platform changes are proposed through
-  pull requests and validated before reconciliation.
-- **Reuse over repetition.** Common capabilities belong in shared packages or
-  platform services, not copied into individual workloads.
-- **Safe delivery by default.** Workloads should use versioned configuration,
-  explicit dependencies, health checks, and rollback-friendly releases.
-- **Security is part of delivery.** Keep credentials, internal endpoints, and
-  sensitive topology out of version control; integrate approved secret and
-  identity mechanisms instead.
-- **Observability is a platform concern.** Workload delivery should integrate
-  with the observability capabilities operated by the `observability`
-  repository.
+- 🔍 **Desired state is reviewed state** — All changes via pull requests
+- 🔄 **Reuse over repetition** — Shared packages, not copied configuration
+- 🛡️ **Safe delivery by default** — Versioned, health-checked, rollback-friendly
+- 🔐 **Security first** — No credentials, internal endpoints, or topology in Git
+- 📊 **Observability built-in** — Integrate with observability repository
 
-## Roadmap
+## 🗺️ Roadmap
 
-1. **Bootstrap GitOps** — Establish the initial cluster configuration and a
-   reconciler that can apply version-controlled desired state.
-2. **Establish shared services** — Deliver the platform capabilities required
-   by workloads, with clear ownership and dependency boundaries.
-3. **Onboard workloads** — Add reusable delivery patterns and migrate
-   applications to declarative, reviewable deployment definitions.
-4. **Strengthen delivery controls** — Add policy checks, automated validation,
-   promotion patterns, and recovery documentation as the platform matures.
+| Phase | Goal |
+| --- | --- |
+| 1️⃣ **Bootstrap** | Install Flux, establish GitOps reconciliation |
+| 2️⃣ **Services** | Deploy shared platform services (ingress, certs, secrets) |
+| 3️⃣ **Workloads** | Add reusable patterns, deploy applications |
+| 4️⃣ **Controls** | Policies, validation, promotion, recovery docs |
 
-## Contributing
+## 🤝 Contributing
 
-Keep changes focused, declarative, and reviewable. Refer to the
-[`architecture`](https://github.com/hummingbird-labs-dev/architecture)
-repository for platform-wide decisions, keep repository guidance in this
-README, and never commit credentials, private endpoints, or sensitive network
-topology.
+Keep changes:
+- ✅ Focused and declarative
+- ✅ Reviewed and validated
+- ✅ Free of credentials and topology
+
+Refer to [`architecture`](https://github.com/hummingbird-labs-dev/architecture) for platform decisions.
