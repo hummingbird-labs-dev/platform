@@ -5,4 +5,4 @@ metadata:
   namespace: flux-system
 spec:
   interval: 60m
-  url: https://metallb.universe.tf
+  url: https://metallb.github.io/metallb
