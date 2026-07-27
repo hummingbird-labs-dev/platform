@@ -7,3 +7,8 @@ spec:
   podSelector: {}
   policyTypes:
     - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
