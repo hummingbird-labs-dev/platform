@@ -126,6 +126,67 @@ Each folder contains configuration for one clear job. Do not place application
 source code, container builds, credentials, or infrastructure-provisioning code
 in this repository.
 
+## Networking and Ingress
+
+### MetalLB and nginx-ingress Controller
+
+The platform uses two complementary components to route external traffic to
+Kubernetes services:
+
+**MetalLB** is a virtual IP manager for Kubernetes. It watches for services
+marked as `type: LoadBalancer` and assigns them real IP addresses from a
+configured pool. In this platform, MetalLB manages the IP pool `10.10.1.120/32`,
+making that address available on the cluster's network.
+
+**nginx-ingress Controller** reads `Ingress` resources and configures nginx
+routing rules. It receives traffic at the MetalLB-assigned IP address and routes
+it to services based on hostnames and paths. For example, an Ingress rule for
+`platform-api.lan.hummingbirdlabs.dev` will route matching requests to the
+`platform-api` service.
+
+**How they work together:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ External Traffic (e.g., Caddy reverse proxy)             │
+│ Requests to: platform-api.lan.hummingbirdlabs.dev        │
+└─────────────────────┬───────────────────────────────────┘
+                      │
+                      ▼
+        ┌─────────────────────────┐
+        │ MetalLB                 │
+        │ (Assigns IP: 10.10.1.120│
+        │  to nginx service)      │
+        └────────────┬────────────┘
+                     │
+                     ▼
+        ┌────────────────────────────┐
+        │ nginx-ingress Controller    │
+        │ (Reads Ingress rules)      │
+        │ platform-api → service:8080│
+        └────────────┬───────────────┘
+                     │
+                     ▼
+        ┌────────────────────────┐
+        │ platform-api Service   │
+        │ (ClusterIP: port 8080) │
+        └────────────┬───────────┘
+                     │
+                     ▼
+        ┌────────────────────────┐
+        │ platform-api Pods      │
+        │ (Your application)     │
+        └────────────────────────┘
+```
+
+**Key files:**
+
+- `platform/controllers/metallb/` — MetalLB Helm chart and IP pool configuration
+- `platform/controllers/ingress-nginx/` — nginx-ingress Helm chart and service configuration
+
+No direct application changes are needed; define an `Ingress` resource in your
+deployment, and these controllers will automatically configure routing.
+
 ## Adding a Spring Boot API
 
 The first API should be a private, stateless workload: it is reachable only
