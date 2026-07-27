@@ -19,7 +19,7 @@ spec:
     nameOverride: platform-api
     image:
       repository: registry.lan.hummingbirdlabs.dev/platform-api
-      tag: 1.0.10 # {"$imagepolicy": "image-automation:platform-api:tag"}
+      tag: 1.0.12 # {"$imagepolicy": "image-automation:platform-api:tag"}
     ingress:
       enabled: true
       className: nginx
