@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - arc-system-namespace.yaml
+  - arc-runners-namespace.yaml
+  - arc-system-repository.yaml
+  - arc-system-release.yaml
+  - arc-runners-scale-set-release.yaml
