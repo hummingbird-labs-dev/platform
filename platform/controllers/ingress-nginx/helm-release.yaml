@@ -19,10 +19,9 @@ spec:
     controller:
       service:
         type: NodePort
+      hostPort:
+        enabled: true
         ports:
-          http: 80
-          https: 443
-        nodePorts:
           http: 80
           https: 443
       dnsPolicy: ClusterFirst
