@@ -175,6 +175,158 @@ The platform uses two complementary components to route external traffic to Kube
 
 No additional configuration needed—just define an `Ingress` resource in your deployment!
 
+## 🐳 Automatic Image Updates
+
+The platform uses **Flux Image Automation** to automatically detect new container image versions from your private registry and update deployments.
+
+### How It Works
+
+Three Flux components work together in the `image-automation` namespace:
+
+1. **ImageRepository** — Scans your registry every 5 minutes for new tags
+2. **ImagePolicy** — Selects versions matching your criteria (e.g., SemVer)
+3. **ImageUpdateAutomation** — Commits tag updates to Git automatically
+
+**Flow:**
+```
+New Image Tagged → ImageRepository Detects → ImagePolicy Selects → 
+ImageUpdateAutomation Commits → Flux Deploys → Pods Updated
+```
+
+### Example: platform-api
+
+The `platform-api` deployment has image automation enabled:
+
+```yaml
+# deployments/platform-api/helm-release.yaml
+image:
+  repository: registry.lan.hummingbirdlabs.dev/platform-api
+  tag: 1.0.9  # ← Automatically updated by Flux
+```
+
+When you push `1.0.10` to `registry.lan.hummingbirdlabs.dev/platform-api:1.0.10`:
+
+1. ImageRepository polls and finds the new tag (within 5 minutes)
+2. ImagePolicy selects it as the latest SemVer match
+3. ImageUpdateAutomation updates the tag in Git
+4. Flux reconciles and redeploys the application
+5. New pods start with the new image
+
+### Monitoring Image Automation
+
+**Check detected tags:**
+```bash
+kubectl get imagerepository -n image-automation
+kubectl describe imagerepository platform-api -n image-automation
+```
+
+**Watch for automatic commits:**
+```bash
+git log --oneline | grep "chore(images)"
+```
+
+**Monitor deployment:**
+```bash
+kubectl get deployment -n applications -w
+```
+
+### Adding Image Automation to a New App
+
+To add automatic image updates for a new application:
+
+**1. Create ImageRepository:**
+```yaml
+# platform/controllers/image-automation/image-repository-<app>.yaml
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: <app>
+  namespace: image-automation
+spec:
+  image: registry.lan.hummingbirdlabs.dev/<app>
+  interval: 5m0s
+```
+
+**2. Create ImagePolicy:**
+```yaml
+# platform/controllers/image-automation/image-policy-<app>.yaml
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: <app>
+  namespace: image-automation
+spec:
+  imageRepositoryRef:
+    name: <app>
+  policy:
+    semver:
+      range: '*'  # or adjust range (e.g., '1.x', '>= 1.0.0')
+```
+
+**3. Add marker to HelmRelease:**
+```yaml
+# deployments/<app>/helm-release.yaml
+image:
+  repository: registry.lan.hummingbirdlabs.dev/<app>
+  tag: 1.0.0  # {"$imagepolicy": "image-automation:<app>:tag"}
+```
+
+**4. Add to kustomization:**
+```yaml
+# platform/controllers/image-automation/kustomization.yaml
+resources:
+  - image-repository-<app>.yaml
+  - image-policy-<app>.yaml
+  # (ImageUpdateAutomation watches all deployments path automatically)
+```
+
+**5. Commit and push** — the rest happens automatically!
+
+### Versioning Strategies
+
+Customize version selection by changing the ImagePolicy `range`:
+
+```yaml
+# All versions
+policy:
+  semver:
+    range: '*'
+
+# Only patch updates (e.g., 1.0.x)
+policy:
+  semver:
+    range: '1.0.x'
+
+# Only minor and patch (e.g., 1.x, skip 2.0.0)
+policy:
+  semver:
+    range: '<2'
+
+# Specific constraint
+policy:
+  semver:
+    range: '>= 1.0.0, < 2.0.0'
+```
+
+### Troubleshooting
+
+**ImageRepository not detecting tags:**
+- Check registry connectivity: `kubectl logs -n flux-system deployment/image-reflector-controller`
+- Verify image name and registry URL exactly match
+- Ensure credentials are configured if registry requires auth
+
+**ImageUpdateAutomation not committing:**
+- Verify Git token has write permissions
+- Check logs: `kubectl logs -n flux-system deployment/image-automation-controller`
+- Ensure image tag marker comment is present and formatted correctly
+
+**Commits pushed but deployment not updating:**
+- Verify HelmRelease is watching the repository: `kubectl get helmrelease -A`
+- Check for conflicts in Git that prevent fast-forward merges
+- Restart the kustomize-controller if CRDs were recently added
+
+---
+
 ## 🚀 Adding a Spring Boot API
 
 The first API should be a **private, stateless workload**:
