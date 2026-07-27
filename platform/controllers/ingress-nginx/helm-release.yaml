@@ -22,7 +22,6 @@ spec:
         ports:
           http: 80
           https: 443
-      hostNetwork: true
       dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/hostname: k8s-master
