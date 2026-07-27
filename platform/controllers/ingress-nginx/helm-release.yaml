@@ -17,14 +17,12 @@ spec:
         namespace: flux-system
   values:
     controller:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       service:
-        type: NodePort
-      hostPort:
-        enabled: true
-        ports:
-          http: 80
-          https: 443
-      dnsPolicy: ClusterFirst
+        type: ClusterIP
+        externalIPs:
+          - 10.10.1.120
       nodeSelector:
         kubernetes.io/hostname: k8s-master
       tolerations:
