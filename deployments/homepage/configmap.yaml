@@ -35,7 +35,7 @@ data:
             description: Platform REST API
             icon: mdiApi
     - Infrastructure:
-        - Proxmox:
+        - PVE:
             href: https://10.10.1.14:8006/
             description: Virtualization Platform
             icon: mdiServer
