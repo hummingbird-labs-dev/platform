@@ -8,7 +8,7 @@ metadata:
 data:
   kubernetes.yaml: |
     mode: cluster
-  
+
   settings.yaml: |
     title: Hummingbird Labs
     subtitle: Platform Dashboard
@@ -27,18 +27,23 @@ data:
     background:
       image: https://images.unsplash.com/photo-1557672172-298e090d0f80?w=1920&q=80
       opacity: 0.1
-  
+
   services.yaml: |
     - Platform:
         - API:
-            href: https://api.lan.hummingbirdlabs.dev
+            href: https://platform-api.lan.hummingbirdlabs.dev
             description: Platform REST API
             icon: mdiApi
-        - PostgreSQL:
-            href: https://postgres.lan.hummingbirdlabs.dev
-            description: Database
-            icon: mdiDatabase
-  
+    - Infrastructure:
+        - Proxmox:
+            href: https://10.10.1.14:8006/
+            description: Virtualization Platform
+            icon: mdiServer
+        - UniFi:
+            href: https://192.168.0.1/
+            description: Network Controller
+            icon: mdiAccessPoint
+
   bookmarks.yaml: |
     - Docs:
         - Homepage Docs:
@@ -50,8 +55,8 @@ data:
     - GitHub:
         - Hummingbird Labs:
             icon: mdiGithub
-            href: https://github.com/hummingbird-labs
-  
+            href: https://github.com/hummingbird-labs-dev
+
   widgets.yaml: |
     - kubernetes:
         cluster:
@@ -75,7 +80,7 @@ data:
         provider: google
         focus: true
         target: _blank
-  
+
   custom.css: ""
   custom.js: ""
   docker.yaml: ""
