@@ -83,6 +83,9 @@ data:
         cpu: true
         memory: true
         network: default
+    - uptimekuma:
+        url: https://uptime-kuma.lan.hummingbirdlabs.dev
+        slug: homepage
     - search:
         provider: google
         focus: true
