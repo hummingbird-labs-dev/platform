@@ -5,12 +5,19 @@ metadata:
   namespace: applications
   labels:
     app.kubernetes.io/name: homepage
+  annotations:
+    metallb.io/address-pool: primary
 spec:
-  type: ClusterIP
+  type: LoadBalancer
+  loadBalancerIP: 10.10.1.120
   ports:
-    - port: 3000
+    - port: 80
       targetPort: http
       protocol: TCP
       name: http
+    - port: 443
+      targetPort: http
+      protocol: TCP
+      name: https
   selector:
     app.kubernetes.io/name: homepage
