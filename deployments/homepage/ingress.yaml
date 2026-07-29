@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homepage
+  namespace: applications
+  annotations:
+    # Add ingress controller annotations as needed
+    # Example for nginx:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: homepage.lan.hummingbirdlabs.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homepage
+                port:
+                  number: 3000
+  tls:
+    # Enable TLS with certificate
+    - hosts:
+        - homepage.lan.hummingbirdlabs.dev
+      secretName: homepage-tls

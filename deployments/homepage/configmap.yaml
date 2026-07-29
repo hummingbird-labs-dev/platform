@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: applications
+data:
+  settings.yaml: |
+    title: Hummingbird Labs
+    subtitle: Platform Dashboard
+    theme: dark
+    color: slate
+    layout:
+      header:
+        style: boxed
+        columns: 4
+      sidebar:
+        position: left
+        style: boxed
+      card:
+        style: boxed
+    favicon: https://www.hummingbirdlabs.dev/favicon.ico
+    background:
+      image: https://images.unsplash.com/photo-1557672172-298e090d0f80?w=1920&q=80
+      opacity: 0.1
+  
+  services.yaml: |
+    - Platform:
+        - API:
+            href: https://api.lan.hummingbirdlabs.dev
+            description: Platform REST API
+            icon: mdiApi
+        - PostgreSQL:
+            href: https://postgres.lan.hummingbirdlabs.dev
+            description: Database
+            icon: mdiDatabase
+  
+  bookmarks.yaml: |
+    - Docs:
+        - Homepage Docs:
+            icon: mdiBookOpen
+            href: https://gethomepage.dev
+        - Kubernetes Docs:
+            icon: mdiKubernetes
+            href: https://kubernetes.io/docs
+    - GitHub:
+        - Hummingbird Labs:
+            icon: mdiGithub
+            href: https://github.com/hummingbird-labs
+  
+  widgets.yaml: |
+    - search:
+        provider: google
+        focus: true
+        target: _blank
+    - greeting:
+        text_size: xl
+        text: Welcome to Hummingbird Labs Platform
+    - resources:
+        cpu: true
+        memory: true
+        disk: true
+        label: Server
+    - weather:
+        location: San Francisco
+        label: Weather
+        units: metric
+    - datetime:
+        text_size: xl
+        format:
+          dateFormat: dddd, MMMM d
+          timeFormat: HH:mm
