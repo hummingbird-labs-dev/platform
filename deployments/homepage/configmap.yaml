@@ -33,29 +33,32 @@ data:
         - API:
             href: https://platform-api.lan.hummingbirdlabs.dev
             description: Platform REST API
-            icon: mdiApi
+            icon: mdi-api
     - Infrastructure:
         - PVE:
             href: https://10.10.1.14:8006/
             description: Virtualization Platform
-            icon: mdiServer
+            icon: mdi-server
         - UniFi:
             href: https://192.168.0.1/
             description: Network Controller
-            icon: mdiAccessPoint
+            icon: mdi-access-point
 
   bookmarks.yaml: |
     - Docs:
         - Homepage Docs:
-            icon: mdiBookOpen
+            icon: mdi-book-open
             href: https://gethomepage.dev
         - Kubernetes Docs:
-            icon: mdiKubernetes
+            icon: mdi-kubernetes
             href: https://kubernetes.io/docs
     - GitHub:
         - Hummingbird Labs:
-            icon: mdiGithub
+            icon: mdi-github
             href: https://github.com/hummingbird-labs-dev
+        - Hummingbird Labs Dev Org:
+            icon: mdi-github
+            href: https://github.com/orgs/hummingbird-labs-dev
 
   widgets.yaml: |
     - kubernetes:
