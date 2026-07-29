@@ -43,6 +43,10 @@ data:
             href: https://192.168.0.1/
             description: Network Controller
             icon: mdi-access-point
+        - Container Registry:
+            href: https://registry.lan.hummingbirdlabs.dev
+            description: Docker Registry
+            icon: mdi-docker
 
   bookmarks.yaml: |
     - Docs:
