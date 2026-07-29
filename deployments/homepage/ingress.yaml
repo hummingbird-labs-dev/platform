@@ -3,9 +3,14 @@ kind: Ingress
 metadata:
   name: homepage
   namespace: applications
+  labels:
+    app.kubernetes.io/name: homepage
   annotations:
-    # Add ingress controller annotations as needed
-    # Example for nginx:
+    gethomepage.dev/description: Dynamically Detected Homepage
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Cluster Management
+    gethomepage.dev/icon: homepage.png
+    gethomepage.dev/name: Homepage
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
@@ -21,7 +26,6 @@ spec:
                 port:
                   number: 3000
   tls:
-    # Enable TLS with certificate
     - hosts:
         - homepage.lan.hummingbirdlabs.dev
       secretName: homepage-tls
