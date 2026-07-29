@@ -11,7 +11,6 @@ metadata:
     gethomepage.dev/group: Cluster Management
     gethomepage.dev/icon: homepage.png
     gethomepage.dev/name: Homepage
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
   rules:
@@ -25,7 +24,3 @@ spec:
                 name: homepage
                 port:
                   number: 80
-  tls:
-    - hosts:
-        - homepage.lan.hummingbirdlabs.dev
-      secretName: homepage-tls
