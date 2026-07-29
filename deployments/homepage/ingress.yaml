@@ -24,7 +24,7 @@ spec:
               service:
                 name: homepage
                 port:
-                  number: 3000
+                  number: 80
   tls:
     - hosts:
         - homepage.lan.hummingbirdlabs.dev
