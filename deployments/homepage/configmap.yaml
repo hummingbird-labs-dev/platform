@@ -47,6 +47,15 @@ data:
             href: https://registry.lan.hummingbirdlabs.dev
             description: Docker Registry
             icon: mdi-docker
+    - Monitoring:
+        - Uptime Kuma:
+            href: https://uptime-kuma.lan.hummingbirdlabs.dev/status/homepage
+            description: Status page
+            icon: mdi-heart-pulse
+            widgets:
+              - type: uptimekuma
+                url: https://uptime-kuma.lan.hummingbirdlabs.dev
+                slug: homepage
 
   bookmarks.yaml: |
     - Docs:
@@ -83,9 +92,6 @@ data:
         cpu: true
         memory: true
         network: default
-    - uptimekuma:
-        url: https://uptime-kuma.lan.hummingbirdlabs.dev
-        slug: homepage
     - search:
         provider: google
         focus: true
