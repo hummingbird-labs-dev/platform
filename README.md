@@ -11,6 +11,7 @@ This repository defines the desired state for cluster services and application d
 The platform provides a repeatable path for delivering services to Kubernetes without requiring each workload to solve cluster integration, configuration, and delivery independently.
 
 **Includes:**
+
 - ✅ Cluster bootstrap configuration for GitOps reconciliation
 - ✅ GitOps application definitions and reconciliation boundaries
 - ✅ Shared platform services (ingress, certificates, identity, secrets)
@@ -21,14 +22,14 @@ The platform provides a repeatable path for delivering services to Kubernetes wi
 
 `platform` owns Kubernetes-level desired state and application delivery. It does not provision underlying infrastructure or duplicate architecture documentation.
 
-| Repository | Responsibility |
-| --- | --- |
-| 🏗️ [`architecture`](https://github.com/hummingbird-labs-dev/architecture) | System design, decisions, service catalog, operational model |
-| 🔧 [`infrastructure`](https://github.com/hummingbird-labs-dev/infrastructure) | Compute, networking, DNS, and shared infrastructure |
-| ⚙️ [`configuration`](https://github.com/hummingbird-labs-dev/configuration) | OS configuration, machine automation, Caddy setup |
-| ☸️ [`platform`](https://github.com/hummingbird-labs-dev/platform) | **← YOU ARE HERE** — Kubernetes state, GitOps, services, workloads |
-| 🌐 [`edge`](https://github.com/hummingbird-labs-dev/edge) | Caddy, TLS, DNS, reverse-proxy routing |
-| 📊 [`observability`](https://github.com/hummingbird-labs-dev/observability) | Telemetry, dashboards, alerts, runbooks |
+| Repository                                                                    | Responsibility                                                     |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 🏗️ [`architecture`](https://github.com/hummingbird-labs-dev/architecture)     | System design, decisions, service catalog, operational model       |
+| 🔧 [`infrastructure`](https://github.com/hummingbird-labs-dev/infrastructure) | Compute, networking, DNS, and shared infrastructure                |
+| ⚙️ [`configuration`](https://github.com/hummingbird-labs-dev/configuration)   | OS configuration, machine automation, Caddy setup                  |
+| ☸️ [`platform`](https://github.com/hummingbird-labs-dev/platform)             | **← YOU ARE HERE** — Kubernetes state, GitOps, services, workloads |
+| 🌐 [`edge`](https://github.com/hummingbird-labs-dev/edge)                     | Caddy, TLS, DNS, reverse-proxy routing                             |
+| 📊 [`observability`](https://github.com/hummingbird-labs-dev/observability)   | Telemetry, dashboards, alerts, runbooks                            |
 
 ## 📐 Delivery Model
 
@@ -112,14 +113,14 @@ platform/
 └── 🔍 .github/workflows/              CI/CD validation
 ```
 
-| Folder | Purpose |
-| --- | --- |
-| `bootstrap/` | 🚀 Flux installation & sync configuration |
-| `platform/` | ☸️ Cluster controllers, namespaces, policies |
-| `gitops/` | 📋 Orchestration & reconciliation order |
-| `deployments/` | 📦 Workloads (APIs, databases, etc.) |
-| `packages/` | 📚 Reusable charts & templates |
-| `.github/workflows/` | 🔍 Validation & GitOps checks |
+| Folder               | Purpose                                      |
+| -------------------- | -------------------------------------------- |
+| `bootstrap/`         | 🚀 Flux installation & sync configuration    |
+| `platform/`          | ☸️ Cluster controllers, namespaces, policies |
+| `gitops/`            | 📋 Orchestration & reconciliation order      |
+| `deployments/`       | 📦 Workloads (APIs, databases, etc.)         |
+| `packages/`          | 📚 Reusable charts & templates               |
+| `.github/workflows/` | 🔍 Validation & GitOps checks                |
 
 ## 🌐 Networking & Ingress
 
@@ -128,11 +129,13 @@ platform/
 The platform uses two complementary components to route external traffic to Kubernetes services:
 
 **🔌 MetalLB** — Virtual IP Manager
+
 - Watches for `LoadBalancer` services
 - Assigns real IPs from a configured pool
 - Makes IPs available on your network
 
 **🔀 nginx-ingress Controller** — Smart Router
+
 - Reads `Ingress` routing rules
 - Configures nginx at the MetalLB-assigned IP
 - Routes traffic by hostname and path
@@ -170,6 +173,7 @@ The platform uses two complementary components to route external traffic to Kube
 ```
 
 **Configuration Files:**
+
 - 📍 `platform/controllers/metallb/` — MetalLB Helm chart & IP pools
 - 🔀 `platform/controllers/ingress-nginx/` — nginx-ingress configuration
 
@@ -188,8 +192,9 @@ Three Flux components work together in the `image-automation` namespace:
 3. **ImageUpdateAutomation** — Commits tag updates to Git automatically
 
 **Flow:**
+
 ```
-New Image Tagged → ImageRepository Detects → ImagePolicy Selects → 
+New Image Tagged → ImageRepository Detects → ImagePolicy Selects →
 ImageUpdateAutomation Commits → Flux Deploys → Pods Updated
 ```
 
@@ -201,7 +206,7 @@ The `platform-api` deployment has image automation enabled:
 # deployments/platform-api/helm-release.yaml
 image:
   repository: registry.lan.hummingbirdlabs.dev/platform-api
-  tag: 1.0.9  # ← Automatically updated by Flux
+  tag: 1.0.9 # ← Automatically updated by Flux
 ```
 
 When you push `1.0.10` to `registry.lan.hummingbirdlabs.dev/platform-api:1.0.10`:
@@ -215,17 +220,20 @@ When you push `1.0.10` to `registry.lan.hummingbirdlabs.dev/platform-api:1.0.10`
 ### Monitoring Image Automation
 
 **Check detected tags:**
+
 ```bash
 kubectl get imagerepository -n image-automation
 kubectl describe imagerepository platform-api -n image-automation
 ```
 
 **Watch for automatic commits:**
+
 ```bash
 git log --oneline | grep "chore(images)"
 ```
 
 **Monitor deployment:**
+
 ```bash
 kubectl get deployment -n applications -w
 ```
@@ -235,6 +243,7 @@ kubectl get deployment -n applications -w
 To add automatic image updates for a new application:
 
 **1. Create ImageRepository:**
+
 ```yaml
 # platform/controllers/image-automation/image-repository-<app>.yaml
 apiVersion: image.toolkit.fluxcd.io/v1
@@ -248,6 +257,7 @@ spec:
 ```
 
 **2. Create ImagePolicy:**
+
 ```yaml
 # platform/controllers/image-automation/image-policy-<app>.yaml
 apiVersion: image.toolkit.fluxcd.io/v1
@@ -260,18 +270,20 @@ spec:
     name: <app>
   policy:
     semver:
-      range: '*'  # or adjust range (e.g., '1.x', '>= 1.0.0')
+      range: "*" # or adjust range (e.g., '1.x', '>= 1.0.0')
 ```
 
 **3. Add marker to HelmRelease:**
+
 ```yaml
 # deployments/<app>/helm-release.yaml
 image:
   repository: registry.lan.hummingbirdlabs.dev/<app>
-  tag: 1.0.0  # {"$imagepolicy": "image-automation:<app>:tag"}
+  tag: 1.0.0 # {"$imagepolicy": "image-automation:<app>:tag"}
 ```
 
 **4. Add to kustomization:**
+
 ```yaml
 # platform/controllers/image-automation/kustomization.yaml
 resources:
@@ -311,16 +323,19 @@ policy:
 ### Troubleshooting
 
 **ImageRepository not detecting tags:**
+
 - Check registry connectivity: `kubectl logs -n flux-system deployment/image-reflector-controller`
 - Verify image name and registry URL exactly match
 - Ensure credentials are configured if registry requires auth
 
 **ImageUpdateAutomation not committing:**
+
 - Verify Git token has write permissions
 - Check logs: `kubectl logs -n flux-system deployment/image-automation-controller`
 - Ensure image tag marker comment is present and formatted correctly
 
 **Commits pushed but deployment not updating:**
+
 - Verify HelmRelease is watching the repository: `kubectl get helmrelease -A`
 - Check for conflicts in Git that prevent fast-forward merges
 - Restart the kustomize-controller if CRDs were recently added
@@ -330,6 +345,7 @@ policy:
 ## 🚀 Adding a Spring Boot API
 
 The first API should be a **private, stateless workload**:
+
 - ✅ Reachable only inside the cluster
 - ✅ No ingress, load balancer, or database
 - ✅ Health checks configured
@@ -337,6 +353,7 @@ The first API should be a **private, stateless workload**:
 ### API Requirements
 
 Your container image must:
+
 - 🔧 Listen on port **8080**
 - 👤 Run as a **non-root user**
 - 📁 Support a **read-only root filesystem** with `/tmp` available
@@ -375,7 +392,6 @@ spec:
 
 Then add to `deployments/kustomization.yaml` with a narrow network policy.
 
-
 ## 📋 Operating Principles
 
 - 🔍 **Desired state is reviewed state** — All changes via pull requests
@@ -389,7 +405,7 @@ Then add to `deployments/kustomization.yaml` with a narrow network policy.
 For `deployments/homepage`, keep private URLs in `deployments/homepage/.env` and generate the Secret from it:
 
 ```sh
-kubectl create secret generic homepage-secret \
+kubectl create secret generic homepage-secret -n applications \
   --from-env-file=deployments/homepage/.env \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
@@ -402,16 +418,17 @@ kubectl apply -k deployments/homepage
 
 ## 🗺️ Roadmap
 
-| Phase | Goal |
-| --- | --- |
-| 1️⃣ **Bootstrap** | Install Flux, establish GitOps reconciliation |
-| 2️⃣ **Services** | Deploy shared platform services (ingress, certs, secrets) |
-| 3️⃣ **Workloads** | Add reusable patterns, deploy applications |
-| 4️⃣ **Controls** | Policies, validation, promotion, recovery docs |
+| Phase            | Goal                                                      |
+| ---------------- | --------------------------------------------------------- |
+| 1️⃣ **Bootstrap** | Install Flux, establish GitOps reconciliation             |
+| 2️⃣ **Services**  | Deploy shared platform services (ingress, certs, secrets) |
+| 3️⃣ **Workloads** | Add reusable patterns, deploy applications                |
+| 4️⃣ **Controls**  | Policies, validation, promotion, recovery docs            |
 
 ## 🤝 Contributing
 
 Keep changes:
+
 - ✅ Focused and declarative
 - ✅ Reviewed and validated
 - ✅ Free of credentials and topology
