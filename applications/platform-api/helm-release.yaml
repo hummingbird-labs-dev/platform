@@ -2,14 +2,14 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: platform-api
-  namespace: flux-system
+  namespace: applications
 spec:
   interval: 10m
   releaseName: platform-api
   targetNamespace: applications
   chart:
     spec:
-      chart: ./packages/spring-boot-api
+      chart: ./charts/spring-boot-api
       reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
@@ -24,7 +24,11 @@ spec:
       enabled: true
       className: nginx
       hosts:
-        - host: platform-api.lan.hummingbirdlabs.dev
-          paths:
+        - paths:
             - path: /
               pathType: Prefix
+  valuesFrom:
+    - kind: Secret
+      name: platform-api-secret
+      valuesKey: PLATFORM_API_INGRESS_HOST
+      targetPath: ingress.hosts[0].host

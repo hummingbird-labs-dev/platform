@@ -416,6 +416,23 @@ Then reconcile the deployment with:
 kubectl apply -k deployments/homepage
 ```
 
+### Platform API ingress host
+
+For `applications/platform-api`, keep the ingress hostname in `applications/platform-api/.env` and generate the Secret in `applications`:
+
+```sh
+kubectl create secret generic platform-api-secret \
+  -n applications \
+  --from-env-file=applications/platform-api/.env \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+Then reconcile the release with:
+
+```sh
+kubectl apply -k applications/platform-api
+```
+
 ## 🗺️ Roadmap
 
 | Phase            | Goal                                                      |
