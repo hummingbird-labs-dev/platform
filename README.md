@@ -384,6 +384,22 @@ Then add to `deployments/kustomization.yaml` with a narrow network policy.
 - 🔐 **Security first** — No credentials, internal endpoints, or topology in Git
 - 📊 **Observability built-in** — Integrate with observability repository
 
+### Homepage private values
+
+For `deployments/homepage`, keep private URLs in `deployments/homepage/.env` and generate the Secret from it:
+
+```sh
+kubectl create secret generic homepage-secret \
+  --from-env-file=deployments/homepage/.env \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+Then reconcile the deployment with:
+
+```sh
+kubectl apply -k deployments/homepage
+```
+
 ## 🗺️ Roadmap
 
 | Phase | Goal |

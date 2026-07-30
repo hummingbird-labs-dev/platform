@@ -31,30 +31,30 @@ data:
   services.yaml: |
     - Platform:
         - API:
-            href: https://platform-api.lan.hummingbirdlabs.dev
+            href: "{{HOMEPAGE_VAR_PLATFORM_API_URL}}"
             description: Platform REST API
             icon: mdi-api
     - Infrastructure:
         - PVE:
-            href: https://10.10.1.14:8006/
+            href: "{{HOMEPAGE_VAR_PVE_URL}}"
             description: Virtualization Platform
             icon: mdi-server
         - UniFi:
-            href: https://192.168.0.1/
+            href: "{{HOMEPAGE_VAR_UNIFI_URL}}"
             description: Network Controller
             icon: mdi-access-point
         - Container Registry:
-            href: https://registry.lan.hummingbirdlabs.dev
+            href: "{{HOMEPAGE_VAR_REGISTRY_URL}}"
             description: Docker Registry
             icon: mdi-docker
     - Monitoring:
         - Uptime Kuma:
-            href: https://uptime-kuma.lan.hummingbirdlabs.dev/status/homepage
+            href: "{{HOMEPAGE_VAR_UPTIME_KUMA_STATUS_URL}}"
             description: Status page
             icon: mdi-heart-pulse
             widgets:
               - type: uptimekuma
-                url: https://uptime-kuma.lan.hummingbirdlabs.dev
+                url: "{{HOMEPAGE_VAR_UPTIME_KUMA_URL}}"
                 slug: homepage
 
   bookmarks.yaml: |
