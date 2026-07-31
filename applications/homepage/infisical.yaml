@@ -21,9 +21,9 @@ spec:
       template:
         engineVersion: v1
         data:
-          HOMEPAGE_VAR_PLATFORM_API_URL: "{{ .HOMEPAGE_VAR_PLATFORM_API_URL.Value }}"
-          HOMEPAGE_VAR_PVE_URL: "{{ .HOMEPAGE_VAR_PVE_URL.Value }}"
-          HOMEPAGE_VAR_UNIFI_URL: "{{ .HOMEPAGE_VAR_UNIFI_URL.Value }}"
-          HOMEPAGE_VAR_REGISTRY_URL: "{{ .HOMEPAGE_VAR_REGISTRY_URL.Value }}"
-          HOMEPAGE_VAR_UPTIME_KUMA_STATUS_URL: "{{ .HOMEPAGE_VAR_UPTIME_KUMA_STATUS_URL.Value }}"
-          HOMEPAGE_VAR_UPTIME_KUMA_URL: "{{ .HOMEPAGE_VAR_UPTIME_KUMA_URL.Value }}"
+          PLATFORM_API_URL: "{{ .PLATFORM_API_URL.Value }}"
+          PROXMOX_URL: "{{ .PROXMOX_URL.Value }}"
+          UNIFI_URL: "{{ .UNIFI_URL.Value }}"
+          REGISTRY_URL: "{{ .REGISTRY_URL.Value }}"
+          UPTIME_KUMA_STATUS_URL: "{{ .UPTIME_KUMA_STATUS_URL.Value }}"
+          UPTIME_KUMA_URL: "{{ .UPTIME_KUMA_URL.Value }}"
