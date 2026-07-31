@@ -413,7 +413,7 @@ Infisical validates a short-lived ServiceAccount token via the cluster's
 
 #### Shared platform bootstrap
 
-Once, at the platform level (`applications/infisical-bootstrap/`), the
+Once, at the platform level (`platform/controllers/infisical-bootstrap/`), the
 repository defines:
 
 - `ServiceAccount infisical-secrets` in `applications` — shared by every
@@ -431,7 +431,7 @@ One placeholder must be filled in after the Infisical UI setup:
 
 | Placeholder | File | Where to get it |
 | --- | --- | --- |
-| `REPLACE_WITH_MACHINE_IDENTITY_ID` | `applications/infisical-bootstrap/identity-secret.yaml` | Infisical UI → Access → Identities → `applications-k8s` → Identity ID |
+| `REPLACE_WITH_MACHINE_IDENTITY_ID` | `platform/controllers/infisical-bootstrap/identity-secret.yaml` | Infisical UI → Access → Identities → `applications-k8s` → Identity ID |
 
 #### One-time Infisical UI setup
 
@@ -445,7 +445,7 @@ One placeholder must be filled in after the Infisical UI setup:
      - Allowed namespaces: `applications`
      - Verify TLS Certificate: off (PoC; can be tightened later)
 2. Copy the Identity ID into
-   `applications/infisical-bootstrap/identity-secret.yaml` and commit.
+   `platform/controllers/infisical-bootstrap/identity-secret.yaml` and commit.
 
 #### Onboarding a new app
 
