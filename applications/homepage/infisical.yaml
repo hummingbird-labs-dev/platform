@@ -12,9 +12,18 @@ spec:
   sources:
     - projectSlug: hummingbirdlabs-dev-m77-b
       environmentSlug: prod
-      secretPath: /
+      secretPath: /lan/hostnames
   targets:
     - name: homepage-secret
       namespace: applications
       kind: Secret
       creationPolicy: Owner
+      template:
+        engineVersion: v1
+        data:
+          HOMEPAGE_VAR_PLATFORM_API_URL: "{{ .HOMEPAGE_VAR_PLATFORM_API_URL.Value }}"
+          HOMEPAGE_VAR_PVE_URL: "{{ .HOMEPAGE_VAR_PVE_URL.Value }}"
+          HOMEPAGE_VAR_UNIFI_URL: "{{ .HOMEPAGE_VAR_UNIFI_URL.Value }}"
+          HOMEPAGE_VAR_REGISTRY_URL: "{{ .HOMEPAGE_VAR_REGISTRY_URL.Value }}"
+          HOMEPAGE_VAR_UPTIME_KUMA_STATUS_URL: "{{ .HOMEPAGE_VAR_UPTIME_KUMA_STATUS_URL.Value }}"
+          HOMEPAGE_VAR_UPTIME_KUMA_URL: "{{ .HOMEPAGE_VAR_UPTIME_KUMA_URL.Value }}"

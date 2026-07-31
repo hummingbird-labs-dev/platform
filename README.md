@@ -462,10 +462,30 @@ For each application that needs secrets from Infisical:
    directory containing only an `InfisicalStaticSecret` (see
    `applications/homepage/infisical.yaml` as the canonical example). Set:
    - `spec.sources[0].projectSlug` to the Project Slug from step 1.
-   - `spec.sources[0].secretPath` to `/` or `/<app>` matching where the
-     secrets live in Infisical.
+   - `spec.sources[0].secretPath` to `/` or `/<folder>` matching where
+     the secrets live in Infisical.
    - `spec.targets[0].name` to the K8s Secret name the app's Deployment
      already reads via `envFrom`.
+   - **Recommended:** always use `spec.targets[0].template` to
+     *explicitly* project only the keys this app needs. This decouples
+     what a folder holds from what a single app sees, so you can safely
+     store many shared secrets in one folder (e.g. `/lan/hostnames`)
+     without leaking unrelated values into every consumer's Secret.
+     Access each source value as `{{ .KEY_NAME.Value }}`.
+
+   Example template pattern:
+
+   ```yaml
+   targets:
+     - name: <app>-secret
+       kind: Secret
+       creationPolicy: Owner
+       template:
+         engineVersion: v1
+         data:
+           APP_URL: "{{ .APP_URL.Value }}"
+           # only the keys this app actually needs
+   ```
 3. **In the app's kustomization**: add `- infisical.yaml` to `resources`.
 4. Commit; the operator will create and refresh the target Secret every
    60s. Roll the app to pick up the values:
