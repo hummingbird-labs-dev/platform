@@ -1,58 +1,3 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: infisical-homepage
-  namespace: applications
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: infisical-homepage-auth-delegator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:auth-delegator
-subjects:
-  - kind: ServiceAccount
-    name: infisical-homepage
-    namespace: applications
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: infisical-homepage-identity
-  namespace: applications
-type: Opaque
-stringData:
-  identityId: REPLACE_WITH_MACHINE_IDENTITY_ID
----
-apiVersion: secrets.infisical.com/v1beta1
-kind: InfisicalConnection
-metadata:
-  name: infisical
-  namespace: applications
-spec:
-  address: http://infisical-infisical-standalone-infisical.infisical.svc.cluster.local:8080
----
-apiVersion: secrets.infisical.com/v1beta1
-kind: InfisicalAuth
-metadata:
-  name: homepage
-  namespace: applications
-spec:
-  infisicalConnectionRef:
-    name: infisical
-    namespace: applications
-  method: kubernetes
-  kubernetes:
-    identityIdRef:
-      name: infisical-homepage-identity
-      namespace: applications
-      key: identityId
-    serviceAccountRef:
-      name: infisical-homepage
-      namespace: applications
----
 apiVersion: secrets.infisical.com/v1beta1
 kind: InfisicalStaticSecret
 metadata:
@@ -60,7 +5,7 @@ metadata:
   namespace: applications
 spec:
   infisicalAuthRef:
-    name: homepage
+    name: applications
     namespace: applications
   syncOptions:
     refreshInterval: 60s

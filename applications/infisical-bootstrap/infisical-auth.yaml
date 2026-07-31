@@ -1,0 +1,26 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalConnection
+metadata:
+  name: infisical
+  namespace: applications
+spec:
+  address: http://infisical-infisical-standalone-infisical.infisical.svc.cluster.local:8080
+---
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalAuth
+metadata:
+  name: applications
+  namespace: applications
+spec:
+  infisicalConnectionRef:
+    name: infisical
+    namespace: applications
+  method: kubernetes
+  kubernetes:
+    identityIdRef:
+      name: infisical-identity
+      namespace: applications
+      key: identityId
+    serviceAccountRef:
+      name: infisical-secrets
+      namespace: applications
