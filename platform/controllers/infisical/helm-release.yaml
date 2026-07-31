@@ -25,6 +25,9 @@ spec:
 
     postgresql:
       enabled: true
+      image:
+        registry: mirror.gcr.io
+        repository: bitnamilegacy/postgresql
       primary:
         persistence:
           enabled: true
@@ -35,6 +38,9 @@ spec:
 
     redis:
       enabled: true
+      image:
+        registry: mirror.gcr.io
+        repository: bitnamilegacy/redis
       master:
         persistence:
           enabled: true
