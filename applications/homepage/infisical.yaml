@@ -10,7 +10,7 @@ spec:
   syncOptions:
     refreshInterval: 60s
   sources:
-    - projectId: REPLACE_WITH_PROJECT_ID
+    - projectSlug: hummingbirdlabs-dev-m77-b
       environmentSlug: prod
       secretPath: /
   targets:

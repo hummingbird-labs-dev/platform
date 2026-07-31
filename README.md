@@ -451,14 +451,19 @@ One placeholder must be filled in after the Infisical UI setup:
 
 For each application that needs secrets from Infisical:
 
-1. **In Infisical UI**: create a Project (e.g. `homepage`), add an
-   environment with slug `prod`, add the secrets at path `/`, and attach
-   the shared `applications-k8s` identity to the project with **Viewer**
-   role. Copy the Project ID.
+1. **In Infisical UI**: use the shared `Hummingbirdlabs.dev` project
+   (one project, all apps). Ensure the `prod` environment exists, add
+   this app's secrets — either at path `/` or under a folder like
+   `/<app>` if you want isolation. The shared `applications-k8s`
+   identity is already attached with **Viewer** role, so new apps get
+   read access automatically. Copy the Project Slug (visible in the
+   URL bar while inside the project, e.g. `hummingbirdlabs-dev-a1b2`).
 2. **In this repo**: add a single `infisical.yaml` file under the app's
    directory containing only an `InfisicalStaticSecret` (see
    `applications/homepage/infisical.yaml` as the canonical example). Set:
-   - `spec.sources[0].projectId` to the Project ID from step 1.
+   - `spec.sources[0].projectSlug` to the Project Slug from step 1.
+   - `spec.sources[0].secretPath` to `/` or `/<app>` matching where the
+     secrets live in Infisical.
    - `spec.targets[0].name` to the K8s Secret name the app's Deployment
      already reads via `envFrom`.
 3. **In the app's kustomization**: add `- infisical.yaml` to `resources`.
