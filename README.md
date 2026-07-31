@@ -494,8 +494,8 @@ kubectl apply -k applications/platform-api
 
 The self-hosted Infisical instance in `platform/controllers/infisical` requires a
 Kubernetes Secret named `infisical-secrets` in the `infisical` namespace. It holds
-`AUTH_SECRET`, `ENCRYPTION_KEY`, and `SITE_URL`. Keep values in
-`platform/controllers/infisical/.env` (gitignored) using
+`AUTH_SECRET`, `ENCRYPTION_KEY`, `SITE_URL`, and `ALLOW_INTERNAL_IP_CONNECTIONS`.
+Keep values in `platform/controllers/infisical/.env` (gitignored) using
 [`.env.example`](platform/controllers/infisical/.env.example) as a template:
 
 ```sh

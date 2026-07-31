@@ -28,9 +28,6 @@ spec:
           memory: 512Mi
         limits:
           memory: 2Gi
-      extraEnv:
-        - name: ALLOW_INTERNAL_IP_CONNECTIONS
-          value: "true"
 
     postgresql:
       enabled: true
