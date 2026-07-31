@@ -1,0 +1,37 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: infisical
+  namespace: infisical
+spec:
+  interval: 10m
+  releaseName: infisical
+  targetNamespace: infisical
+  chart:
+    spec:
+      chart: infisical-standalone
+      version: "1.4.x"
+      sourceRef:
+        kind: HelmRepository
+        name: infisical
+        namespace: flux-system
+  values:
+    infisical:
+      replicaCount: 2
+      image:
+        repository: infisical/infisical
+        tag: "v0.161.11"
+        pullPolicy: IfNotPresent
+
+    postgresql:
+      enabled: true
+
+    redis:
+      enabled: true
+
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      nginx:
+        enabled: false
+      hostName: infisical.lan.hummingbirdlabs.dev

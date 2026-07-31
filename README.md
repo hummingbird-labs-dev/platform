@@ -433,6 +433,39 @@ Then reconcile the release with:
 kubectl apply -k applications/platform-api
 ```
 
+### Infisical bootstrap secrets
+
+The self-hosted Infisical instance in `platform/controllers/infisical` requires a
+Kubernetes Secret named `infisical-secrets` in the `infisical` namespace. It holds
+`AUTH_SECRET`, `ENCRYPTION_KEY`, and `SITE_URL`. Keep values in
+`platform/controllers/infisical/.env` (gitignored) using
+[`.env.example`](platform/controllers/infisical/.env.example) as a template:
+
+```sh
+openssl rand -base64 32           # → AUTH_SECRET
+openssl rand -hex 16              # → ENCRYPTION_KEY
+```
+
+Create the Secret **before** Flux reconciles the HelmRelease (otherwise the
+Infisical pods will crash-loop waiting for it):
+
+```sh
+kubectl create namespace infisical --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic infisical-secrets \
+  -n infisical \
+  --from-env-file=platform/controllers/infisical/.env \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+> ⚠️ **Store `ENCRYPTION_KEY` outside the cluster.** Without it, encrypted data in
+> the Infisical database cannot be recovered — even from a backup.
+
+The bundled in-cluster PostgreSQL and Redis are **not** highly available and use
+chart defaults for storage — suitable for proof-of-concept only. Infisical is
+exposed via the existing `ingress-nginx` controller at the hostname configured in
+`platform/controllers/infisical/helm-release.yaml` (`ingress.hostName`), which
+must match `SITE_URL`.
+
 ## 🗺️ Roadmap
 
 | Phase            | Goal                                                      |
