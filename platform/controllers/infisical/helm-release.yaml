@@ -22,6 +22,12 @@ spec:
         repository: infisical/infisical
         tag: "v0.161.11"
         pullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 350m
+          memory: 512Mi
+        limits:
+          memory: 2Gi
 
     postgresql:
       enabled: true
