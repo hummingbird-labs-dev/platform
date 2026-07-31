@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: infisical-postgres
+  labels:
+    app.kubernetes.io/part-of: infisical
+    app.kubernetes.io/component: postgres
+spec:
+  capacity:
+    storage: 8Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: infisical-manual
+  local:
+    path: /opt/infisical/postgres
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-node-1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: infisical-redis
+  labels:
+    app.kubernetes.io/part-of: infisical
+    app.kubernetes.io/component: redis
+spec:
+  capacity:
+    storage: 8Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: infisical-manual
+  local:
+    path: /opt/infisical/redis
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-node-1

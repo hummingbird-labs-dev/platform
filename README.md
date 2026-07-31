@@ -460,9 +460,32 @@ kubectl create secret generic infisical-secrets \
 > ⚠️ **Store `ENCRYPTION_KEY` outside the cluster.** Without it, encrypted data in
 > the Infisical database cannot be recovered — even from a backup.
 
-The bundled in-cluster PostgreSQL and Redis are **not** highly available and use
-chart defaults for storage — suitable for proof-of-concept only. Infisical is
-exposed via the existing `ingress-nginx` controller at the hostname configured in
+The bundled in-cluster PostgreSQL and Redis are **not** highly available. Their
+data is persisted via **two hand-provisioned `PersistentVolume` objects**
+(`platform/controllers/infisical/persistent-volumes.yaml`) that map to
+directories on node `k8s-node-1`:
+
+| Component | PV name | Host path on `k8s-node-1` | Size |
+| --------- | --------------------- | ------------------------- | ---- |
+| Postgres  | `infisical-postgres`  | `/opt/infisical/postgres` | 8 Gi |
+| Redis     | `infisical-redis`     | `/opt/infisical/redis`    | 8 Gi |
+
+Both PVs use a dedicated non-provisioning `StorageClass` called
+`infisical-manual` (`provisioner: kubernetes.io/no-provisioner`), so no
+dynamic provisioner is needed and no other workload can accidentally claim
+these volumes. The Postgres and Redis pods are pinned to `k8s-node-1` via
+`nodeAffinity` on the PVs; node failure will make the data unavailable
+until `k8s-node-1` returns. Suitable for proof-of-concept only.
+
+Before Flux reconciles for the first time, create the host directories on
+`k8s-node-1`:
+
+```sh
+sudo mkdir -p /opt/infisical/postgres /opt/infisical/redis
+sudo chmod 0700 /opt/infisical/postgres /opt/infisical/redis
+```
+
+Infisical is exposed via the existing `ingress-nginx` controller at the hostname configured in
 `platform/controllers/infisical/helm-release.yaml` (`ingress.hostName`), which
 must match `SITE_URL`.
 

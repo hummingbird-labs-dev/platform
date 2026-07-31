@@ -25,9 +25,23 @@ spec:
 
     postgresql:
       enabled: true
+      primary:
+        persistence:
+          enabled: true
+          storageClass: infisical-manual
+          size: 8Gi
+          accessModes:
+            - ReadWriteOnce
 
     redis:
       enabled: true
+      master:
+        persistence:
+          enabled: true
+          storageClass: infisical-manual
+          size: 8Gi
+          accessModes:
+            - ReadWriteOnce
 
     ingress:
       enabled: true
