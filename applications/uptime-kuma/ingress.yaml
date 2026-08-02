@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: uptime-kuma.lan.hummingbirdlabs.dev
+    - host: "{{ .UPTIME_KUMA_URL_HOST }}"  # templated by InfisicalStaticSecret via uptime-kuma-secret (see infisical.yaml)
       http:
         paths:
           - path: /
