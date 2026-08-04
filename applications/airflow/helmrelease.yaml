@@ -25,6 +25,11 @@ spec:
         username: airflow
         password: airflow
         database: airflow
+      primary:
+        persistence:
+          enabled: true
+          size: 10Gi
+          storageClass: infisical-manual
 
     # Executor configuration
     executor: KubernetesExecutor
@@ -38,14 +43,14 @@ spec:
       persistence:
         enabled: true
         size: 10Gi
-        storageClassName: local-path
+        storageClass: infisical-manual
 
     # PVC for DAGs
     dags:
       persistence:
         enabled: true
         size: 5Gi
-        storageClassName: local-path
+        storageClass: infisical-manual
       gitSync:
         enabled: false
 
