@@ -120,3 +120,23 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: dags
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-airflow-postgresql-0
+  namespace: applications
+  labels:
+    app.kubernetes.io/component: primary
+    app.kubernetes.io/instance: airflow
+    app.kubernetes.io/name: postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: infisical-manual
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: postgres
