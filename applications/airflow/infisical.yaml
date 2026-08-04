@@ -1,0 +1,33 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalStaticSecret
+metadata:
+  name: airflow
+  namespace: applications
+spec:
+  infisicalAuthRef:
+    name: applications
+    namespace: applications
+  syncOptions:
+    refreshInterval: 60s
+  sources:
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /lan/hostnames
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /databases
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /credentials
+  targets:
+    - name: airflow-config
+      namespace: applications
+      kind: Secret
+      creationPolicy: Owner
+      template:
+        engineVersion: v1
+        data:
+          AIRFLOW_URL: "{{ .AIRFLOW_URL.Value }}"
+          AIRFLOW_DATABASE_CONNECTION: "{{ .AIRFLOW_DATABASE_CONNECTION.Value }}"
+          DB_USERNAME: "{{ .AIRFLOW_DB_USERNAME.Value }}"
+          DB_PASSWORD: "{{ .AIRFLOW_DB_PASSWORD.Value }}"

@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ynab-etl-cron
+  namespace: default
+  labels:
+    app: ynab-etl
+spec:
+  schedule: "0 2 * * *" # daily at 02:00
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: ynab-etl
+              image: REPLACE_WITH_IMAGE:latest
+              command: ["python", "-m", "etl.main"]
+              env:
+                - name: DATABASE_URL
+                  value: "REPLACE_WITH_DB_URL"
+                - name: YNAB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: REPLACE_WITH_SECRET_NAME
+                      key: ynab_token
+          # Infisical annotations/secret bindings should be added here per cluster operator docs
+          # Example placeholder:
+          # annotations:
+          #   infisical.com/secrets: "<secret-path>"
