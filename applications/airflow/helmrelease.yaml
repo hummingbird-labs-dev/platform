@@ -62,3 +62,12 @@ spec:
       runAsUser: 50000
       runAsNonRoot: true
       allowPrivilegeEscalation: false
+  valuesFrom:
+    - kind: Secret
+      name: airflow-config
+      valuesKey: DB_USERNAME
+      targetPath: postgresql.auth.username
+    - kind: Secret
+      name: airflow-config
+      valuesKey: DB_PASSWORD
+      targetPath: postgresql.auth.password
