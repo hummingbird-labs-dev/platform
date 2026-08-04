@@ -29,10 +29,7 @@ spec:
         persistence:
           enabled: true
           size: 10Gi
-          storageClassName: infisical-manual
-          selector:
-            matchLabels:
-              app.kubernetes.io/component: postgres
+          storageClass: infisical-manual
 
     # Executor configuration
     executor: KubernetesExecutor
@@ -46,20 +43,14 @@ spec:
       persistence:
         enabled: true
         size: 10Gi
-        storageClassName: infisical-manual
-        selector:
-          matchLabels:
-            app.kubernetes.io/component: logs
+        storageClass: infisical-manual
 
     # PVC for DAGs
     dags:
       persistence:
         enabled: true
         size: 5Gi
-        storageClassName: infisical-manual
-        selector:
-          matchLabels:
-            app.kubernetes.io/component: dags
+        storageClass: infisical-manual
       gitSync:
         enabled: false
 
