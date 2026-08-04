@@ -14,6 +14,10 @@ spec:
   storageClassName: infisical-manual
   local:
     path: /opt/airflow/postgres
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: primary
+      app.kubernetes.io/name: postgresql
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -39,6 +43,9 @@ spec:
   storageClassName: infisical-manual
   local:
     path: /opt/airflow/logs
+  selector:
+    matchLabels:
+      component: logs-pvc
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -64,6 +71,9 @@ spec:
   storageClassName: infisical-manual
   local:
     path: /opt/airflow/dags
+  selector:
+    matchLabels:
+      component: dags-pvc
   nodeAffinity:
     required:
       nodeSelectorTerms:
