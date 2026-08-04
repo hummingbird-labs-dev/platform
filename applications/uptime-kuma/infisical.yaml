@@ -21,4 +21,4 @@ spec:
       template:
         engineVersion: v1
         data:
-          UPTIME_KUMA_URL: '{{ .UPTIME_KUMA_URL.Value }}'
+          UPTIME_KUMA_URL: '{{ .UPTIME_KUMA_URL.Value | trimPrefix "https://" | trimPrefix "http://" | trimSuffix "/" }}'

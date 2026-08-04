@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: uptime-kuma
+  namespace: applications
+spec:
+  interval: 10m
+  releaseName: uptime-kuma
+  targetNamespace: applications
+  chart:
+    spec:
+      chart: ./charts/uptime-kuma
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    nameOverride: uptime-kuma
+    image:
+      repository: louislam/uptime-kuma
+      tag: "2"
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - paths:
+            - path: /
+              pathType: Prefix
+  valuesFrom:
+    - kind: Secret
+      name: uptime-kuma-secret
+      valuesKey: UPTIME_KUMA_URL
+      targetPath: ingress.hosts[0].host

@@ -1,24 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uptime-kuma
-  namespace: applications
+  name: {{ include "uptime-kuma.fullname" . }}
   labels:
-    app.kubernetes.io/name: uptime-kuma
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: uptime-kuma
+      {{- include "uptime-kuma.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: uptime-kuma
+        {{- include "uptime-kuma.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: uptime-kuma
-          image: louislam/uptime-kuma:2
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -46,15 +45,22 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 20
           resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: data
               mountPath: /app/data
       volumes:
         - name: data
           emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
