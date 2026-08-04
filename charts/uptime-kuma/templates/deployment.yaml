@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "uptime-kuma.fullname" . }}
+  name: {{ .Values.nameOverride | default "uptime-kuma" }}
   labels:
-    {{- include "uptime-kuma.labels" . | nindent 4 }}
+    app.kubernetes.io/name: uptime-kuma
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "uptime-kuma.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: uptime-kuma
   template:
     metadata:
       labels:
-        {{- include "uptime-kuma.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: uptime-kuma
     spec:
       containers:
         - name: uptime-kuma
@@ -52,15 +52,3 @@ spec:
       volumes:
         - name: data
           emptyDir: {}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}

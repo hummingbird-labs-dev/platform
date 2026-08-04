@@ -14,7 +14,7 @@ spec:
         name: airflow-repo
         namespace: flux-system
   values:
-    # Set default tags for all services
+    # Default image
     defaultAirflowRepository: apache/airflow
     defaultAirflowTag: '2.9.1'
 
@@ -25,48 +25,9 @@ spec:
         username: airflow
         password: airflow
         database: airflow
-      # Note: username and password are also sourced from Infisical secrets
-      # (DB_USERNAME and DB_PASSWORD) for auditability, but the PostgreSQL
-      # subchart requires them as values at install time.
 
     # Executor configuration
     executor: KubernetesExecutor
-
-    # Web UI
-    webserver:
-      replicaCount: 1
-      enabled: true
-      service:
-        type: ClusterIP
-        port: 8080
-      extraEnv:
-        - name: AIRFLOW__CORE__DAGS_FOLDER
-          value: /opt/airflow/dags
-        - name: AIRFLOW__CORE__LOAD_EXAMPLES
-          value: 'False'
-        - name: AIRFLOW__WEBSERVER__BASE_LOG_FOLDER
-          value: /opt/airflow/logs
-
-    # Scheduler
-    scheduler:
-      replicaCount: 1
-      enabled: true
-      resources:
-        limits:
-          cpu: 500m
-          memory: 512Mi
-        requests:
-          cpu: 250m
-          memory: 256Mi
-
-    # Triggerer (required for async executors)
-    triggerer:
-      enabled: true
-      replicaCount: 1
-
-    # Worker configuration (for KubernetesExecutor)
-    workers:
-      enabled: false
 
     # RBAC for KubernetesExecutor
     rbac:
@@ -88,10 +49,6 @@ spec:
       gitSync:
         enabled: false
 
-    # Ingress
-    ingress:
-      enabled: false
-
     # Security context
     podSecurityContext:
       runAsUser: 50000
@@ -102,23 +59,3 @@ spec:
       runAsUser: 50000
       runAsNonRoot: true
       allowPrivilegeEscalation: false
-
-    # Image pull secrets (if using private registry)
-    imagePullSecrets: []
-
-    # Environment variables - sourced from Infisical secrets
-    env:
-      - name: AIRFLOW__CORE__DAGS_FOLDER
-        value: /opt/airflow/dags
-      - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
-        valueFrom:
-          secretKeyRef:
-            name: airflow-config
-            key: AIRFLOW_DATABASE_CONNECTION
-      - name: AIRFLOW__WEBSERVER__BASE_URL
-        valueFrom:
-          secretKeyRef:
-            name: airflow-config
-            key: AIRFLOW_URL
-      - name: AIRFLOW__CORE__EXECUTOR
-        value: KubernetesExecutor
