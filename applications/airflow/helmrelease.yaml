@@ -43,14 +43,12 @@ spec:
       persistence:
         enabled: true
         size: 10Gi
-        storageClass: infisical-manual
 
     # PVC for DAGs
     dags:
       persistence:
         enabled: true
         size: 5Gi
-        storageClass: infisical-manual
       gitSync:
         enabled: false
 
