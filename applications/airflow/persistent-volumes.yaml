@@ -98,6 +98,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
+  volumeName: airflow-logs
   selector:
     matchLabels:
       app.kubernetes.io/component: logs
@@ -117,6 +118,7 @@ spec:
   resources:
     requests:
       storage: 5Gi
+  volumeName: airflow-dags
   selector:
     matchLabels:
       app.kubernetes.io/component: dags
@@ -137,6 +139,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
+  volumeName: airflow-postgres
   selector:
     matchLabels:
       app.kubernetes.io/component: postgres
