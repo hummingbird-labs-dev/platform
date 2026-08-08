@@ -43,14 +43,14 @@ spec:
       persistence:
         enabled: true
         size: 10Gi
-        storageClassName: infisical-manual
+        storageClassName: airflow-manual
 
     # PVC for DAGs
     dags:
       persistence:
         enabled: true
         size: 5Gi
-        storageClassName: infisical-manual
+        storageClassName: airflow-manual
       gitSync:
         enabled: false
 
