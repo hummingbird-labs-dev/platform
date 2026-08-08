@@ -29,7 +29,7 @@ spec:
         persistence:
           enabled: true
           size: 10Gi
-          storageClass: infisical-manual
+          storageClassName: airflow-manual
 
     # Executor configuration
     executor: KubernetesExecutor
