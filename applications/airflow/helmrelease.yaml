@@ -65,15 +65,6 @@ spec:
       runAsNonRoot: true
       allowPrivilegeEscalation: false
 
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                  - k8s-node-1
-
   valuesFrom:
     - kind: Secret
       name: airflow-config
