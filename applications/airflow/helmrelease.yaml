@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: airflow
-      version: '1.x.x'
+      version: "1.x.x"
       sourceRef:
         kind: HelmRepository
         name: airflow-repo
@@ -16,7 +16,7 @@ spec:
   values:
     # Default image
     defaultAirflowRepository: apache/airflow
-    defaultAirflowTag: '2.9.1'
+    defaultAirflowTag: "2.9.1"
 
     # Database configuration
     postgresql:
@@ -64,6 +64,16 @@ spec:
       runAsUser: 50000
       runAsNonRoot: true
       allowPrivilegeEscalation: false
+
+    nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-node-1
+
   valuesFrom:
     - kind: Secret
       name: airflow-config
