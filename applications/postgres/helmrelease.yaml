@@ -21,6 +21,7 @@ spec:
     image:
       registry: mirror.gcr.io
       repository: bitnamilegacy/postgresql
+      tag: 16.2.0-debian-11-r17
     primary:
       persistence:
         enabled: true
