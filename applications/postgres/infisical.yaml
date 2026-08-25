@@ -1,0 +1,29 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalStaticSecret
+metadata:
+  name: postgres-secret
+  namespace: applications
+spec:
+  infisicalAuthRef:
+    name: applications
+    namespace: applications
+  syncOptions:
+    refreshInterval: 60s
+  sources:
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /credentials
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /lan/hostnames
+  targets:
+    - name: postgres-auth
+      namespace: applications
+      kind: Secret
+      creationPolicy: Owner
+      template:
+        engineVersion: v1
+        data:
+          postgres-password: '{{ .POSTGRES_PASSWORD.Value }}'
+          postgres-user: '{{ .POSTGRES_USER.Value }}'
+          postgres-url: '{{ .POSTGRES_URL.Value }}'

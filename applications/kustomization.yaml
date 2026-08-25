@@ -5,3 +5,4 @@ resources:
   - platform-api
   - homepage
   - uptime-kuma
+  - postgres

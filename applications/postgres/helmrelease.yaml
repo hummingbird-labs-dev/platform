@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: postgres
+  namespace: applications
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: postgresql
+      version: "15.x.x"
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
+    auth:
+      existingSecret: postgres-auth
+      secretKeys:
+        adminPasswordKey: postgres-password
+    primary:
+      persistence:
+        enabled: true
+        storageClass: postgres-manual
+        size: 10Gi
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-node-1
+  valuesFrom:
+    - kind: Secret
+      name: postgres-auth
+      valuesKey: postgres-user
+      targetPath: auth.postgresUser

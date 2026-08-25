@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: applications
+resources:
+  - persistent-volumes.yaml
+  - helmrepository.yaml
+  - helmrelease.yaml
+  - infisical.yaml
