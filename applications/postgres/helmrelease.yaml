@@ -18,6 +18,9 @@ spec:
       existingSecret: postgres-auth
       secretKeys:
         adminPasswordKey: postgres-password
+    image:
+      registry: mirror.gcr.io
+      repository: bitnamilegacy/postgresql
     primary:
       persistence:
         enabled: true
