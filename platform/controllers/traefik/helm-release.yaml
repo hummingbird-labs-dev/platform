@@ -24,12 +24,17 @@ spec:
     # Redirect all HTTP to HTTPS
     ports:
       web:
-        redirectTo:
-          port: websecure
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
       websecure:
-        tls:
-          enabled: true
-          # certResolver: "cloudflare" # Uncomment to make this the default cert resolver
+        http:
+          tls:
+            enabled: true
+            # certResolver: "cloudflare" # Uncomment to make this the default cert resolver
 
     # Add the DNS challenge configuration to Traefik arguments
     additionalArguments:
