@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: bitnami
-        namespace: flux-system
+        namespace: applications
   values:
     auth:
       existingSecret: postgres-auth
