@@ -6,3 +6,4 @@ resources:
   - homepage
   - uptime-kuma
   - postgres
+  - pgadmin

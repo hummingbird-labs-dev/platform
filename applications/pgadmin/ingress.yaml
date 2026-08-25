@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pgadmin
+  namespace: applications
+  labels:
+    app.kubernetes.io/name: pgadmin
+  annotations:
+    gethomepage.dev/description: PostgreSQL Administration
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/group: Infrastructure
+    gethomepage.dev/icon: pgadmin.png
+    gethomepage.dev/name: pgAdmin
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: pgadmin.lan.hummingbirdlabs.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgadmin
+                port:
+                  number: 80

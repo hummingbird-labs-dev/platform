@@ -1,0 +1,29 @@
+apiVersion: secrets.infisical.com/v1beta1
+kind: InfisicalStaticSecret
+metadata:
+  name: pgadmin-secret
+  namespace: applications
+spec:
+  infisicalAuthRef:
+    name: applications
+    namespace: applications
+  syncOptions:
+    refreshInterval: 60s
+  sources:
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /credentials
+    - projectSlug: hummingbirdlabs-dev-m77-b
+      environmentSlug: prod
+      secretPath: /lan/hostnames
+  targets:
+    - name: pgadmin-auth
+      namespace: applications
+      kind: Secret
+      creationPolicy: Owner
+      template:
+        engineVersion: v1
+        data:
+          PGADMIN_DEFAULT_EMAIL: '{{ .PG_ADMIN_EMAIL.Value }}'
+          PGADMIN_DEFAULT_PASSWORD: '{{ .PG_ADMIN_PASSWORD.Value }}'
+          PG_ADMIN_URL: '{{ .PG_ADMIN_URL.Value | trimPrefix "https://" | trimPrefix "http://" | trimSuffix "/" }}'
