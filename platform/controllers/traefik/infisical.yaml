@@ -1,67 +1,12 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: infisical-secrets
-  namespace: traefik
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: traefik-infisical-secrets-auth-delegator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:auth-delegator
-subjects:
-  - kind: ServiceAccount
-    name: infisical-secrets
-    namespace: traefik
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: infisical-identity
-  namespace: traefik
-type: Opaque
-stringData:
-  identityId: 52e54ae5-7bba-40d6-a7ae-73646ce569f1
----
-apiVersion: secrets.infisical.com/v1beta1
-kind: InfisicalConnection
-metadata:
-  name: infisical
-  namespace: traefik
-spec:
-  address: http://infisical-infisical-standalone-infisical.infisical.svc.cluster.local:8080
----
-apiVersion: secrets.infisical.com/v1beta1
-kind: InfisicalAuth
-metadata:
-  name: traefik
-  namespace: traefik
-spec:
-  infisicalConnectionRef:
-    name: infisical
-    namespace: traefik
-  method: kubernetes
-  kubernetes:
-    identityIdRef:
-      name: infisical-identity
-      namespace: traefik
-      key: identityId
-    serviceAccountRef:
-      name: infisical-secrets
-      namespace: traefik
----
 apiVersion: secrets.infisical.com/v1beta1
 kind: InfisicalStaticSecret
 metadata:
   name: traefik-credentials
-  namespace: traefik
+  namespace: applications
 spec:
   infisicalAuthRef:
-    name: traefik
-    namespace: traefik
+    name: applications
+    namespace: applications
   syncOptions:
     refreshInterval: 60s
   sources:
@@ -72,7 +17,7 @@ spec:
     - name: traefik-credentials
       namespace: traefik
       kind: Secret
-      creationPolicy: Owner
+      creationPolicy: Orphan
       template:
         engineVersion: v1
         data:
