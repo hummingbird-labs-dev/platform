@@ -49,6 +49,7 @@ spec:
       name: data
       size: 128Mi
       path: /data
+      storageClass: traefik-manual
 
     # This is where you inject your API token from Infisical
     envFrom:
